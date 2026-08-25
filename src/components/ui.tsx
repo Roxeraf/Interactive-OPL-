@@ -37,12 +37,12 @@ export function Avatar({
 }
 
 const STATUS_STYLE: Record<Status, string> = {
-  OFFEN: "bg-[#efe4c8] text-[#6b4f12]",
-  IN_ARBEIT: "bg-[#d7ece6] text-[#0e5c57]",
-  WARTE_KUNDE: "bg-[#f3ddd2] text-[#9a3412]",
-  WARTE_INTERN: "bg-[#e4e0f5] text-[#4338ca]",
-  GELOEST: "bg-[#dcecdc] text-[#157a4b]",
-  VERWORFEN: "bg-[#ece8e1] text-[#5c574e]",
+  OFFEN: "bg-[#edf2f7] text-[#4a5568]",
+  IN_ARBEIT: "bg-[#e6f1fb] text-[#0066cc]",
+  WARTE_KUNDE: "bg-[#fef3c7] text-[#92400e]",
+  WARTE_INTERN: "bg-[#eef2ff] text-[#3730a3]",
+  GELOEST: "bg-[#e6f6ed] text-[#276749]",
+  VERWORFEN: "bg-[#f7fafc] text-[#718096]",
 };
 
 export function StatusBadge({ status }: { status: string }) {
@@ -50,7 +50,7 @@ export function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={clsx(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-wide",
+        "inline-flex items-center rounded-sm px-2 py-0.5 text-[11px] font-semibold",
         STATUS_STYLE[s] ?? "bg-line text-ink",
       )}
     >
@@ -61,7 +61,7 @@ export function StatusBadge({ status }: { status: string }) {
 
 const PRIORITY_STYLE: Record<Priority, string> = {
   KRITISCH: "bg-danger",
-  HOCH: "bg-copper",
+  HOCH: "bg-brand",
   MITTEL: "bg-amber",
   NIEDRIG: "bg-muted",
 };

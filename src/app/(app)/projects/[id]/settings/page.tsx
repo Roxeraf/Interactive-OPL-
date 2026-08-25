@@ -7,6 +7,7 @@ import { serializeProject } from "@/lib/serialize";
 import { PermissionForm } from "@/components/permission-form";
 import { Avatar } from "@/components/ui";
 import { ROLE_LABEL, type Role } from "@/lib/constants";
+import { PageHeader } from "@/components/page-header";
 
 export default async function SettingsPage({
   params,
@@ -26,19 +27,18 @@ export default async function SettingsPage({
   if (!caps.manageProject) notFound();
 
   return (
-    <main className="px-8 py-10">
-      <Link href={`/projects/${id}`} className="text-sm text-copper">
+    <main className="px-8 py-6">
+      <Link href={`/projects/${id}`} className="mb-4 inline-block text-sm font-medium text-brand hover:underline">
         ← zurück zur OPL
       </Link>
-      <p className="mt-6 font-mono text-xs tracking-[0.2em] text-copper">{project.code}</p>
-      <h1 className="font-display text-5xl tracking-tight">Kundenrechte</h1>
-      <p className="mt-3 max-w-xl text-muted">
-        Interne Punkte bleiben unsichtbar. Geteilte Punkte folgen den Schaltern unten. Jede Änderung wird im Protokoll festgehalten.
-      </p>
+      <PageHeader
+        title="Kundenrechte"
+        description={`${project.code} · ${project.name}. Interne Punkte bleiben unsichtbar. Geteilte Punkte folgen den Schaltern unten. Jede Änderung wird im Protokoll festgehalten.`}
+      />
 
-      <section className="mt-10">
-        <h2 className="font-display text-2xl">Beteiligte</h2>
-        <ul className="mt-4 max-w-xl divide-y divide-line rounded-2xl border border-line bg-raised">
+      <section className="max-w-2xl">
+        <h2 className="mb-3 text-sm font-semibold">Beteiligte</h2>
+        <ul className="divide-y divide-line rounded-sm border border-line bg-raised">
           {project.members.map((m) => (
             <li key={m.id} className="flex items-center gap-3 px-4 py-3">
               <Avatar person={m.user} />

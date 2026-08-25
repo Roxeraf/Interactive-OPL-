@@ -34,7 +34,7 @@ export function LoginForm() {
   return (
     <form action={action} className="flex flex-col gap-5">
       <label className="block">
-        <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+        <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
           E-Mail
         </span>
         <input
@@ -43,11 +43,11 @@ export function LoginForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-xl border border-line bg-raised px-3.5 py-3 text-sm outline-none ring-copper/30 focus:ring-2"
+          className="field"
         />
       </label>
       <label className="block">
-        <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+        <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
           Passwort
         </span>
         <input
@@ -56,24 +56,20 @@ export function LoginForm() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-xl border border-line bg-raised px-3.5 py-3 text-sm outline-none ring-copper/30 focus:ring-2"
+          className="field"
         />
       </label>
 
       {state?.error ? (
-        <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">{state.error}</p>
+        <p className="rounded-sm bg-danger/10 px-3 py-2 text-sm text-danger">{state.error}</p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="mt-1 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-paper transition hover:bg-copper disabled:opacity-60"
-      >
-        {pending ? "Anmelden…" : "In die Lage gehen"}
+      <button type="submit" disabled={pending} className="btn-primary h-10 w-full text-sm">
+        {pending ? "Anmelden…" : "Anmelden"}
       </button>
 
       <div className="mt-2">
-        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
           Demo-Zugänge · Passwort Klarpunkt2026
         </p>
         <div className="flex flex-col gap-2">
@@ -85,13 +81,13 @@ export function LoginForm() {
                 setEmail(a.email);
                 setPassword("Klarpunkt2026");
               }}
-              className="flex items-center justify-between rounded-xl border border-line bg-paper px-3 py-2 text-left text-sm transition hover:border-copper/40"
+              className="flex items-center justify-between rounded-sm border border-line bg-raised px-3 py-2 text-left text-sm transition hover:border-brand/40"
             >
               <span>
                 <span className="block font-medium">{a.name}</span>
                 <span className="text-xs text-muted">{a.email}</span>
               </span>
-              <span className="text-[11px] uppercase tracking-wider text-copper">{a.role}</span>
+              <span className="text-[11px] font-medium text-brand">{a.role}</span>
             </button>
           ))}
         </div>

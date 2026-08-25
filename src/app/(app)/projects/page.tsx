@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { isAdmin, isInternal } from "@/lib/permissions";
+import { PageHeader } from "@/components/page-header";
 
 export default async function ProjectsPage() {
   const user = await requireUser();
@@ -15,39 +16,49 @@ export default async function ProjectsPage() {
   });
 
   return (
-    <main className="px-8 py-10">
-      <p className="text-[11px] uppercase tracking-[0.22em] text-muted">Projekte</p>
-      <h1 className="mt-2 font-display text-5xl tracking-tight">OPL-Register</h1>
-      <p className="mt-3 max-w-xl text-muted">
-        Jedes Kundenprojekt führt eine eigene Offene-Punkte-Liste nach Vorlage V5.0 — digital, mit Lagebild statt Zeilenchaos.
-      </p>
-      <div className="mt-10 grid gap-5 md:grid-cols-2">
-        {projects.map((p) => {
-          const items = isInternal(user) ? p.items : p.items.filter((i) => i.visibility === "SHARED");
-          const open = items.filter((i) => i.status !== "GELOEST" && i.status !== "VERWORFEN").length;
-          return (
-            <Link
-              key={p.id}
-              href={`/projects/${p.id}`}
-              className="group rounded-2xl border border-line bg-raised p-6 paper-shadow transition hover:border-copper/40"
-            >
-              <p className="font-mono text-xs tracking-[0.18em] text-copper">{p.code}</p>
-              <h2 className="mt-2 font-display text-3xl tracking-tight group-hover:text-copper">{p.name}</h2>
-              <p className="mt-1 text-sm text-muted">
-                {p.customerName}
-                {p.site ? ` · ${p.site}` : ""}
-              </p>
-              <p className="mt-4 text-sm leading-relaxed">{p.description}</p>
-              <div className="mt-6 flex items-end justify-between border-t border-line pt-4">
-                <div>
-                  <p className="font-display text-3xl">{open}</p>
-                  <p className="text-xs uppercase tracking-wider text-muted">aktive Punkte</p>
-                </div>
-                <p className="text-sm text-muted">{p.members.length} Beteiligte</p>
-              </div>
-            </Link>
-          );
-        })}
+    <main className="px-8 py-6">
+      <PageHeader
+        title="Projekte"
+        count={`${projects.length} Datensätze`}
+        description="Jedes Kundenprojekt führt eine eigene Offene-Punkte-Liste nach Vorlage V5.0 — digital, mit Lagebild statt Zeilenchaos."
+      />
+      <div className="overflow-x-auto rounded-sm border border-line bg-raised">
+        <table className="w-full text-sm">
+          <thead className="bg-sidebar text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+            <tr>
+              <th className="px-4 py-3 text-left">Code</th>
+              <th className="px-4 py-3 text-left">Projekt</th>
+              <th className="px-4 py-3 text-left">Kunde</th>
+              <th className="px-4 py-3 text-left">Standort</th>
+              <th className="px-4 py-3 text-right">Aktive Punkte</th>
+              <th className="px-4 py-3 text-right">Beteiligte</th>
+            </tr>
+          </thead>
+          <tbody>
+            {projects.map((p, index) => {
+              const items = isInternal(user) ? p.items : p.items.filter((i) => i.visibility === "SHARED");
+              const open = items.filter((i) => i.status !== "GELOEST" && i.status !== "VERWORFEN").length;
+              return (
+                <tr
+                  key={p.id}
+                  className={`border-t border-line ${index % 2 === 1 ? "bg-sidebar/80" : "bg-raised"}`}
+                >
+                  <td className="px-4 py-3 font-mono text-xs font-medium text-brand">{p.code}</td>
+                  <td className="px-4 py-3">
+                    <Link href={`/projects/${p.id}`} className="font-medium text-ink hover:text-brand hover:underline">
+                      {p.name}
+                    </Link>
+                    <p className="mt-0.5 max-w-md text-xs text-muted">{p.description}</p>
+                  </td>
+                  <td className="px-4 py-3">{p.customerName}</td>
+                  <td className="px-4 py-3 text-muted">{p.site || "—"}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-navy">{open}</td>
+                  <td className="px-4 py-3 text-right text-muted">{p.members.length}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </main>
   );
