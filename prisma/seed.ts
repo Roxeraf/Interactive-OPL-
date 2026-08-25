@@ -23,7 +23,7 @@ async function main() {
       title: "Projektleiterin",
       organization: "PLX Customer Project",
       initials: "LH",
-      accent: "#C05621",
+      accent: "#0066CC",
     },
   });
 
@@ -36,7 +36,7 @@ async function main() {
       title: "Inbetriebnahme / Engineering",
       organization: "PLX Customer Project",
       initials: "JW",
-      accent: "#0E5C57",
+      accent: "#38A169",
     },
   });
 
@@ -49,7 +49,7 @@ async function main() {
       title: "Dokumentation & QS",
       organization: "PLX Customer Project",
       initials: "MC",
-      accent: "#1F4D3A",
+      accent: "#2B6CB0",
     },
   });
 
@@ -62,7 +62,7 @@ async function main() {
       title: "Projektleiterin Kunde",
       organization: "Nordwerk AG",
       initials: "AR",
-      accent: "#7C3AED",
+      accent: "#DD6B20",
     },
   });
 
@@ -75,7 +75,7 @@ async function main() {
       title: "Betriebsleiter",
       organization: "Nordwerk AG",
       initials: "TK",
-      accent: "#1D4ED8",
+      accent: "#319795",
     },
   });
 

@@ -28,6 +28,7 @@ import { formatDate, formatDateTime, isOverdue } from "@/lib/dates";
 import type { ClientItem, Person, WorkspacePayload } from "@/lib/serialize";
 import { addComment, createItem, updateItem } from "@/app/actions/items";
 import { exportProjectXlsx, importProjectXlsx } from "@/app/actions/excel";
+import { Filter, Plus, RefreshCw, Search } from "lucide-react";
 import { Avatar, PriorityMark, StatusBadge } from "./ui";
 
 export function OplWorkspace({ payload }: { payload: WorkspacePayload }) {
@@ -74,50 +75,54 @@ export function OplWorkspace({ payload }: { payload: WorkspacePayload }) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="border-b border-line bg-raised/80 px-8 py-6 backdrop-blur">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+    <div className="flex min-h-[calc(100vh-3rem)] flex-col">
+      <header className="border-b border-line bg-raised px-8 py-5">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-[11px] tracking-[0.2em] text-copper">{project.code}</p>
-            <h1 className="font-display text-4xl tracking-tight">{project.name}</h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-[22px] font-semibold tracking-tight text-ink">{project.name}</h1>
+              <span className="text-sm text-muted">{filtered.length} Datensätze</span>
+            </div>
             <p className="mt-1 text-sm text-muted">
+              <span className="font-mono text-brand">{project.code}</span>
+              {" · "}
               {project.customerName}
               {project.site ? ` · ${project.site}` : ""} · Vorlage V5.0
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => router.refresh()}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-sm text-muted hover:bg-canvas"
+              title="Aktualisieren"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </button>
+            <span className="inline-flex h-9 w-9 items-center justify-center text-muted" title="Filter">
+              <Filter className="h-4 w-4" />
+            </span>
+            <span className="inline-flex h-9 w-9 items-center justify-center text-muted" title="Suche">
+              <Search className="h-4 w-4" />
+            </span>
             {caps.seeAudit ? (
-              <Link
-                href={`/projects/${project.id}/audit`}
-                className="rounded-full border border-line px-4 py-2 text-sm hover:border-ink"
-              >
+              <Link href={`/projects/${project.id}/audit`} className="btn">
                 Protokoll
               </Link>
             ) : null}
             {caps.manageProject ? (
-              <Link
-                href={`/projects/${project.id}/settings`}
-                className="rounded-full border border-line px-4 py-2 text-sm hover:border-ink"
-              >
+              <Link href={`/projects/${project.id}/settings`} className="btn">
                 Kundenrechte
               </Link>
             ) : null}
             {caps.export ? (
-              <button
-                type="button"
-                onClick={onExport}
-                className="rounded-full border border-line px-4 py-2 text-sm hover:border-ink"
-              >
+              <button type="button" onClick={onExport} className="btn">
                 Excel V5.0
               </button>
             ) : null}
             {caps.create ? (
-              <button
-                type="button"
-                onClick={() => setCreating(true)}
-                className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper hover:bg-copper"
-              >
-                Neuer Punkt
+              <button type="button" onClick={() => setCreating(true)} className="fab" title="Neuer Punkt">
+                <Plus className="h-5 w-5" />
               </button>
             ) : null}
           </div>
@@ -131,16 +136,16 @@ export function OplWorkspace({ payload }: { payload: WorkspacePayload }) {
         </div>
       </header>
 
-      <div className="flex flex-wrap items-center gap-2 border-b border-line px-8 py-3">
-        <div className="flex rounded-full bg-line/60 p-1">
+      <div className="flex flex-wrap items-center gap-2 border-b border-line bg-raised px-8 py-2.5">
+        <div className="flex rounded-sm border border-line bg-sidebar p-0.5">
           {(["board", "list"] as const).map((v) => (
             <button
               key={v}
               type="button"
               onClick={() => setView(v)}
               className={clsx(
-                "rounded-full px-3 py-1 text-sm",
-                view === v ? "bg-raised shadow-sm" : "text-muted",
+                "rounded-sm px-3 py-1 text-sm",
+                view === v ? "bg-raised font-medium text-navy shadow-sm" : "text-muted",
               )}
             >
               {v === "board" ? "Tafel" : "Register"}
@@ -151,12 +156,12 @@ export function OplWorkspace({ payload }: { payload: WorkspacePayload }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Suchen in Punkten, Quelle, Nummer…"
-          className="min-w-[220px] flex-1 rounded-full border border-line bg-raised px-4 py-1.5 text-sm outline-none focus:ring-2 focus:ring-copper/30"
+          className="field min-w-[220px] flex-1 py-1.5"
         />
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="rounded-full border border-line bg-raised px-3 py-1.5 text-sm"
+          className="field w-auto py-1.5"
         >
           <option value="ALL">Alle Status</option>
           {STATUSES.map((s) => (
@@ -168,7 +173,7 @@ export function OplWorkspace({ payload }: { payload: WorkspacePayload }) {
         <select
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
-          className="rounded-full border border-line bg-raised px-3 py-1.5 text-sm"
+          className="field w-auto py-1.5"
         >
           <option value="ALL">Alle Prioritäten</option>
           {PRIORITIES.map((p) => (
@@ -249,9 +254,9 @@ function Kpi({
   accent?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-line bg-raised px-4 py-3 paper-shadow">
-      <p className="text-[11px] uppercase tracking-[0.16em] text-muted">{label}</p>
-      <p className={clsx("font-display text-3xl", accent && "text-copper")}>{value}</p>
+    <div className="rounded-sm border border-line bg-raised px-4 py-3">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{label}</p>
+      <p className={clsx("text-2xl font-semibold tracking-tight text-navy", accent && "text-danger")}>{value}</p>
       <p className="text-xs text-muted">{hint}</p>
     </div>
   );
@@ -315,8 +320,8 @@ function BoardColumn({
     <section
       ref={setNodeRef}
       className={clsx(
-        "flex w-[280px] shrink-0 flex-col rounded-2xl border border-line bg-paper/70 p-2",
-        isOver && "ring-2 ring-copper/40",
+        "flex w-[280px] shrink-0 flex-col rounded-sm border border-line bg-sidebar p-2",
+        isOver && "ring-2 ring-brand/40",
       )}
     >
       <header className="mb-2 flex items-center justify-between px-2 py-1">
@@ -357,13 +362,13 @@ function BoardCard({
       onClick={() => onSelect(item.id)}
       style={{ transform: CSS.Translate.toString(transform) }}
       className={clsx(
-        "rounded-xl border border-line bg-raised p-3 text-left paper-shadow",
+        "rounded-sm border border-line bg-raised p-3 text-left",
         isDragging && "opacity-70",
         item.visibility === "INTERNAL" && "border-dashed",
       )}
     >
       <div className="mb-1 flex items-center justify-between gap-2">
-        <span className="font-mono text-[11px] text-copper">{formatOpNumber(item.number)}</span>
+        <span className="font-mono text-[11px] font-medium text-brand">{formatOpNumber(item.number)}</span>
         <PriorityMark priority={item.priority} />
       </div>
       <p className="text-sm font-medium leading-snug">{item.title}</p>
@@ -382,29 +387,32 @@ function BoardCard({
 
 function ListView({ items, onSelect }: { items: ClientItem[]; onSelect: (id: string) => void }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-raised paper-shadow">
+    <div className="overflow-hidden rounded-sm border border-line bg-raised">
       <table className="w-full text-sm">
-        <thead className="bg-ink text-[11px] uppercase tracking-[0.14em] text-paper">
+        <thead className="bg-sidebar text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
           <tr>
-            <th className="px-4 py-3 text-left font-medium">Nr.</th>
-            <th className="px-4 py-3 text-left font-medium">Offener Punkt</th>
-            <th className="px-4 py-3 text-left font-medium">Status</th>
-            <th className="px-4 py-3 text-left font-medium">Prio</th>
-            <th className="px-4 py-3 text-left font-medium">Verantwortlich</th>
-            <th className="px-4 py-3 text-left font-medium">Termin</th>
-            <th className="px-4 py-3 text-left font-medium">Quelle</th>
+            <th className="px-4 py-3 text-left">Nr.</th>
+            <th className="px-4 py-3 text-left">Offener Punkt</th>
+            <th className="px-4 py-3 text-left">Status</th>
+            <th className="px-4 py-3 text-left">Prio</th>
+            <th className="px-4 py-3 text-left">Verantwortlich</th>
+            <th className="px-4 py-3 text-left">Termin</th>
+            <th className="px-4 py-3 text-left">Quelle</th>
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => {
+          {items.map((item, index) => {
             const overdue = isOverdue(item.dueDate, item.status);
             return (
               <tr
                 key={item.id}
                 onClick={() => onSelect(item.id)}
-                className="cursor-pointer border-t border-line hover:bg-paper"
+                className={clsx(
+                  "cursor-pointer border-t border-line hover:bg-active",
+                  index % 2 === 1 ? "bg-sidebar/80" : "bg-raised",
+                )}
               >
-                <td className="px-4 py-3 font-mono text-xs text-copper">{formatOpNumber(item.number)}</td>
+                <td className="px-4 py-3 font-mono text-xs font-medium text-brand">{formatOpNumber(item.number)}</td>
                 <td className="px-4 py-3">
                   <p className="font-medium">{item.title}</p>
                   {item.visibility === "INTERNAL" ? (
@@ -420,6 +428,9 @@ function ListView({ items, onSelect }: { items: ClientItem[]; onSelect: (id: str
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <Avatar person={item.ownerInternal} size="sm" />
+                    <span className="max-w-[100px] truncate text-xs">
+                      {item.ownerInternal?.name ?? "—"}
+                    </span>
                     <Avatar person={item.ownerCustomer} size="sm" />
                   </div>
                 </td>
@@ -495,22 +506,22 @@ function ItemDrawer({
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex justify-end bg-ink/30" onClick={onClose}>
+    <div className="fixed inset-0 z-40 flex justify-end bg-navy/40" onClick={onClose}>
       <aside
-        className="flex h-full w-full max-w-xl flex-col overflow-y-auto bg-raised shadow-2xl scrollbar-thin"
+        className="flex h-full w-full max-w-xl flex-col overflow-y-auto bg-raised shadow-xl scrollbar-thin"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-start justify-between border-b border-line px-6 py-5">
           <div>
-            <p className="font-mono text-xs tracking-[0.2em] text-copper">{formatOpNumber(item.number)}</p>
+            <p className="font-mono text-xs font-medium tracking-[0.12em] text-brand">{formatOpNumber(item.number)}</p>
             {canEdit ? (
               <input
                 value={draft.title}
                 onChange={(e) => set("title", e.target.value)}
-                className="mt-1 w-full bg-transparent font-display text-2xl outline-none"
+                className="mt-1 w-full bg-transparent text-xl font-semibold outline-none"
               />
             ) : (
-              <h2 className="mt-1 font-display text-2xl">{item.title}</h2>
+              <h2 className="mt-1 text-xl font-semibold">{item.title}</h2>
             )}
             {!canEdit ? (
               <p className="mt-2 text-xs text-muted">
@@ -531,7 +542,7 @@ function ItemDrawer({
               disabled={!canStatus}
               value={draft.status}
               onChange={(e) => set("status", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+              className="field mt-1 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {STATUSES.map((s) => (
                 <option key={s} value={s}>
@@ -546,7 +557,7 @@ function ItemDrawer({
               disabled={!canEdit}
               value={draft.priority}
               onChange={(e) => set("priority", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+              className="field mt-1 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
@@ -561,7 +572,7 @@ function ItemDrawer({
               disabled={!canEdit}
               value={draft.category}
               onChange={(e) => set("category", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+              className="field mt-1 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -577,7 +588,7 @@ function ItemDrawer({
                 disabled={!canEdit}
                 value={draft.visibility}
                 onChange={(e) => set("visibility", e.target.value)}
-                className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5"
+                className="field mt-1 py-1.5"
               >
                 {VISIBILITIES.map((v) => (
                   <option key={v} value={v}>
@@ -599,7 +610,7 @@ function ItemDrawer({
               disabled={!canEdit}
               value={draft.dueDate ? draft.dueDate.slice(0, 10) : ""}
               onChange={(e) => set("dueDate", e.target.value ? new Date(e.target.value).toISOString() : null)}
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+              className="field mt-1 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </label>
           <label className="block">
@@ -608,7 +619,7 @@ function ItemDrawer({
               disabled={!canEdit}
               value={draft.source}
               onChange={(e) => set("source", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+              className="field mt-1 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </label>
           <label className="block">
@@ -619,7 +630,7 @@ function ItemDrawer({
               onChange={(e) =>
                 set("ownerInternal", intern.find((m) => m.id === e.target.value) ?? null)
               }
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+              className="field mt-1 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="">—</option>
               {intern.map((m) => (
@@ -637,7 +648,7 @@ function ItemDrawer({
               onChange={(e) =>
                 set("ownerCustomer", kunden.find((m) => m.id === e.target.value) ?? null)
               }
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+              className="field mt-1 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="">—</option>
               {kunden.map((m) => (
@@ -663,7 +674,7 @@ function ItemDrawer({
               type="button"
               onClick={save}
               disabled={pending}
-              className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper hover:bg-copper disabled:opacity-50"
+              className="btn-primary"
             >
               {pending ? "Speichern…" : "Änderungen speichern"}
             </button>
@@ -671,15 +682,15 @@ function ItemDrawer({
         </div>
 
         <div className="border-t border-line px-6 py-4">
-          <h3 className="mb-3 font-display text-xl">Verlauf</h3>
+          <h3 className="mb-3 text-sm font-semibold">Verlauf</h3>
           <div className="space-y-3">
             {item.comments.map((c) => (
-              <div key={c.id} className="rounded-xl border border-line bg-paper p-3">
+              <div key={c.id} className="rounded-sm border border-line bg-canvas p-3">
                 <div className="mb-1 flex items-center gap-2">
                   <Avatar person={c.user} size="sm" />
                   <span className="text-sm font-medium">{c.user.name}</span>
                   {c.isInternal ? (
-                    <span className="text-[10px] uppercase tracking-wider text-copper">Intern</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-brand">Intern</span>
                   ) : null}
                   <span className="ml-auto text-[11px] text-muted">{formatDateTime(c.createdAt)}</span>
                 </div>
@@ -697,7 +708,7 @@ function ItemDrawer({
                 onChange={(e) => setComment(e.target.value)}
                 rows={3}
                 placeholder="Kommentar zum Punkt…"
-                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-copper/30"
+                className="field"
               />
               <div className="mt-2 flex items-center justify-between">
                 {caps.internalComment ? (
@@ -717,7 +728,7 @@ function ItemDrawer({
                   type="button"
                   onClick={sendComment}
                   disabled={!comment.trim() || pending}
-                  className="rounded-full bg-copper px-3 py-1.5 text-sm text-white disabled:opacity-50"
+                  className="btn-primary"
                 >
                   Senden
                 </button>
@@ -749,7 +760,7 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={3}
-        className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-copper/30 disabled:opacity-70"
+        className="field mt-1 leading-relaxed disabled:opacity-70"
       />
     </label>
   );
@@ -771,9 +782,9 @@ function CreateDialog({
   const [pending, start] = useTransition();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/40 p-4" onClick={onClose}>
       <form
-        className="w-full max-w-lg rounded-2xl bg-raised p-6 paper-shadow"
+        className="w-full max-w-lg rounded-sm border border-line bg-raised p-6"
         onClick={(e) => e.stopPropagation()}
         onSubmit={(e) => {
           e.preventDefault();
@@ -784,36 +795,36 @@ function CreateDialog({
           });
         }}
       >
-        <h2 className="font-display text-2xl">Neuer offener Punkt</h2>
+        <h2 className="text-lg font-semibold">Neuer offener Punkt</h2>
         <p className="mb-4 text-sm text-muted">Felder gemäß OPL-Vorlage V5.0</p>
         <div className="grid gap-3">
           <input
             required
             name="title"
             placeholder="Offener Punkt"
-            className="rounded-xl border border-line bg-paper px-3 py-2 text-sm"
+            className="field"
           />
           <textarea
             name="description"
             placeholder="Beschreibung"
             rows={3}
-            className="rounded-xl border border-line bg-paper px-3 py-2 text-sm"
+            className="field"
           />
           <textarea
             name="measure"
             placeholder="Vereinbarte Maßnahme"
             rows={2}
-            className="rounded-xl border border-line bg-paper px-3 py-2 text-sm"
+            className="field"
           />
           <div className="grid grid-cols-2 gap-2">
-            <select name="category" className="rounded-xl border border-line bg-paper px-3 py-2 text-sm">
+            <select name="category" className="field">
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {CATEGORY_LABEL[c]}
                 </option>
               ))}
             </select>
-            <select name="priority" defaultValue="MITTEL" className="rounded-xl border border-line bg-paper px-3 py-2 text-sm">
+            <select name="priority" defaultValue="MITTEL" className="field">
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
                   {p}
@@ -823,10 +834,10 @@ function CreateDialog({
             <input
               name="source"
               placeholder="Quelle / Meeting"
-              className="rounded-xl border border-line bg-paper px-3 py-2 text-sm"
+              className="field"
             />
-            <input type="date" name="dueDate" className="rounded-xl border border-line bg-paper px-3 py-2 text-sm" />
-            <select name="ownerInternalId" className="rounded-xl border border-line bg-paper px-3 py-2 text-sm">
+            <input type="date" name="dueDate" className="field" />
+            <select name="ownerInternalId" className="field">
               <option value="">Verantw. intern</option>
               {intern.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -834,7 +845,7 @@ function CreateDialog({
                 </option>
               ))}
             </select>
-            <select name="ownerCustomerId" className="rounded-xl border border-line bg-paper px-3 py-2 text-sm">
+            <select name="ownerCustomerId" className="field">
               <option value="">Verantw. Kunde</option>
               {kunden.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -843,7 +854,7 @@ function CreateDialog({
               ))}
             </select>
             {caps.seeInternal ? (
-              <select name="visibility" className="col-span-2 rounded-xl border border-line bg-paper px-3 py-2 text-sm">
+              <select name="visibility" className="field col-span-2">
                 {VISIBILITIES.map((v) => (
                   <option key={v} value={v}>
                     {VISIBILITY_LABEL[v]}
@@ -854,14 +865,10 @@ function CreateDialog({
           </div>
         </div>
         <div className="mt-5 flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="rounded-full px-4 py-2 text-sm">
+          <button type="button" onClick={onClose} className="btn">
             Abbrechen
           </button>
-          <button
-            type="submit"
-            disabled={pending}
-            className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper"
-          >
+          <button type="submit" disabled={pending} className="btn-primary">
             Anlegen
           </button>
         </div>
@@ -882,7 +889,7 @@ function HiddenImporter({ projectId }: { projectId: string }) {
         router.refresh();
       }}
     >
-      <label className="cursor-pointer rounded-full border border-line bg-raised px-3 py-1.5 text-xs text-muted hover:text-ink">
+      <label className="btn cursor-pointer text-xs text-muted">
         Excel importieren
         <input type="file" name="file" accept=".xlsx,.xls" className="hidden" onChange={(e) => e.currentTarget.form?.requestSubmit()} />
       </label>

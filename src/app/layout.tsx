@@ -1,21 +1,10 @@
 import type { Metadata } from "next";
-import { Fraunces, Outfit, IBM_Plex_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-});
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-});
-
-const ibm = IBM_Plex_Mono({
-  variable: "--font-ibm",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -26,11 +15,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="de"
-      className={`${outfit.variable} ${fraunces.variable} ${ibm.variable} h-full antialiased`}
-    >
-      <body className="min-h-full bg-paper text-ink">{children}</body>
+    <html lang="de" className={`${inter.variable} h-full antialiased`}>
+      <body className="min-h-full bg-canvas text-ink">{children}</body>
     </html>
   );
 }

@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { isAdmin } from "@/lib/permissions";
 import { Avatar } from "@/components/ui";
 import { ROLE_LABEL, type Role } from "@/lib/constants";
+import { PageHeader } from "@/components/page-header";
 
 export default async function UsersPage() {
   const user = await requireUser();
@@ -14,31 +15,50 @@ export default async function UsersPage() {
   });
 
   return (
-    <main className="px-8 py-10">
-      <p className="text-[11px] uppercase tracking-[0.22em] text-muted">Administration</p>
-      <h1 className="mt-2 font-display text-5xl tracking-tight">Personen</h1>
-      <p className="mt-3 max-w-xl text-muted">
-        Rollen steuern, was jemand grundsätzlich darf. Die Feinjustierung je Projekt liegt unter Kundenrechte.
-      </p>
-      <ul className="mt-10 max-w-3xl divide-y divide-line rounded-2xl border border-line bg-raised paper-shadow">
-        {users.map((u) => (
-          <li key={u.id} className="flex items-start gap-4 px-5 py-4">
-            <Avatar person={u} size="lg" />
-            <div className="min-w-0 flex-1">
-              <p className="font-medium">{u.name}</p>
-              <p className="text-sm text-muted">
-                {u.email} · {u.title}
-              </p>
-              <p className="mt-1 text-xs uppercase tracking-wider text-copper">
-                {ROLE_LABEL[u.role as Role]}
-              </p>
-              <p className="mt-2 text-sm text-muted">
-                {u.memberships.map((m) => m.project.code).join(" · ") || "Keine Projekte"}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
+    <main className="px-8 py-6">
+      <PageHeader
+        title="Personen"
+        count={`${users.length} Datensätze`}
+        description="Rollen steuern, was jemand grundsätzlich darf. Die Feinjustierung je Projekt liegt unter Kundenrechte."
+      />
+      <div className="overflow-hidden rounded-sm border border-line bg-raised">
+        <table className="w-full text-sm">
+          <thead className="bg-sidebar text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+            <tr>
+              <th className="px-4 py-3 text-left">Name</th>
+              <th className="px-4 py-3 text-left">Rolle</th>
+              <th className="px-4 py-3 text-left">Organisation</th>
+              <th className="px-4 py-3 text-left">Projekte</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u, index) => (
+              <tr
+                key={u.id}
+                className={`border-t border-line ${index % 2 === 1 ? "bg-sidebar/80" : "bg-raised"}`}
+              >
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar person={u} />
+                    <div>
+                      <p className="font-medium">{u.name}</p>
+                      <p className="text-xs text-muted">{u.email}</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <p>{ROLE_LABEL[u.role as Role]}</p>
+                  <p className="text-xs text-muted">{u.title}</p>
+                </td>
+                <td className="px-4 py-3 text-muted">{u.organization}</td>
+                <td className="px-4 py-3 text-muted">
+                  {u.memberships.map((m) => m.project.code).join(" · ") || "Keine Projekte"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </main>
   );
 }

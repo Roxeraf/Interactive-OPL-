@@ -55,7 +55,7 @@ export function PermissionForm({ project }: { project: ClientProject }) {
       {FLAGS.map((f) => (
         <label
           key={f.key}
-          className="flex cursor-pointer items-start gap-4 rounded-2xl border border-line bg-raised p-4"
+          className="flex cursor-pointer items-start gap-4 rounded-sm border border-line bg-raised p-4"
         >
           <input
             type="checkbox"
@@ -72,7 +72,7 @@ export function PermissionForm({ project }: { project: ClientProject }) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-paper hover:bg-copper"
+        className="btn-primary"
       >
         {pending ? "Speichern…" : "Kundenrechte speichern"}
       </button>
