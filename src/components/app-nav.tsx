@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { FolderKanban, LayoutDashboard, Users } from "lucide-react";
 
-export function AppNav({ isAdmin }: { isAdmin: boolean }) {
+export function AppNav({ isAdmin, onNavigate }: { isAdmin: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   const items = [
     { href: "/dashboard", label: "Lage", icon: LayoutDashboard },
@@ -30,6 +30,7 @@ export function AppNav({ isAdmin }: { isAdmin: boolean }) {
           <Link
             key={item.href}
             href={item.href}
+            onClick={onNavigate}
             className={clsx(
               "relative flex items-center gap-3 rounded-sm px-3 py-2 text-sm transition",
               isActive ? "bg-active font-medium text-navy" : "text-ink hover:bg-active/70",

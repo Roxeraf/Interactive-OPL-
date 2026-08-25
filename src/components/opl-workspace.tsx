@@ -387,7 +387,7 @@ function BoardCard({
 
 function ListView({ items, onSelect }: { items: ClientItem[]; onSelect: (id: string) => void }) {
   return (
-    <div className="overflow-hidden rounded-sm border border-line bg-raised">
+    <div className="overflow-x-auto rounded-sm border border-line bg-raised">
       <table className="w-full text-sm">
         <thead className="bg-sidebar text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
           <tr>

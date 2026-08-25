@@ -21,7 +21,7 @@ export default async function UsersPage() {
         count={`${users.length} Datensätze`}
         description="Rollen steuern, was jemand grundsätzlich darf. Die Feinjustierung je Projekt liegt unter Kundenrechte."
       />
-      <div className="overflow-hidden rounded-sm border border-line bg-raised">
+      <div className="overflow-x-auto rounded-sm border border-line bg-raised">
         <table className="w-full text-sm">
           <thead className="bg-sidebar text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
             <tr>
