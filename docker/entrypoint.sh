@@ -8,8 +8,12 @@ if [ ! -d node_modules/next ] || [ ! -d node_modules/@prisma/client ]; then
   npm ci
 fi
 
-echo "Klarpunkt: Prisma-Client erzeugen …"
-npx prisma generate --schema=prisma/schema.prisma
+if [ ! -d node_modules/.prisma/client ]; then
+  echo "Klarpunkt: Prisma-Client erzeugen …"
+  npx prisma generate --schema=prisma/schema.prisma
+else
+  echo "Klarpunkt: Prisma-Client ist bereits vorhanden."
+fi
 
 echo "Klarpunkt: Datenbankschema anwenden …"
 npx prisma db push --schema=prisma/schema.prisma --skip-generate --accept-data-loss=false
