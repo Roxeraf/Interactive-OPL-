@@ -46,7 +46,7 @@ Beim ersten Start legt der Container die SQLite-Datenbank an, spielt die Demo-Da
 
 Stoppen: `Ctrl+C`, danach optional `docker compose down`. Datenbank zurücksetzen: `docker compose down -v` (Volume wird gelöscht) und erneut `docker compose up --build`.
 
-Unter **Docker Desktop für Windows** wirkt der erste Build oft „hängend“, weil zehntausende kleine Dateien aus `node_modules` ins Linux-VM-Dateisystem kopiert werden. Das Image-Tag `klarpunkt:local` danach wiederzuverwenden ist deshalb wichtig — nicht jedes Mal `--build` anhängen.
+Unter **Docker Desktop für Windows** ist der erste Build spürbar langsamer (Image ziehen, `npm ci`, Production-Build). Ein rekursives `chown` über `node_modules` gibt es bewusst nicht mehr — das war der Schritt, der dort oft minutenlang „eingefroren“ wirkte. Danach das Image `klarpunkt:local` wiederverwenden und nicht jedes Mal `--build` anhängen.
 
 ### Entwicklung im Container (Hot Reload, ohne lokale Node-Installation)
 
