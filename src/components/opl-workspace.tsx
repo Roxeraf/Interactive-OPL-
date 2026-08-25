@@ -86,12 +86,14 @@ export function OplWorkspace({ payload }: { payload: WorkspacePayload }) {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href={`/projects/${project.id}/audit`}
-              className="rounded-full border border-line px-4 py-2 text-sm hover:border-ink"
-            >
-              Protokoll
-            </Link>
+            {caps.seeAudit ? (
+              <Link
+                href={`/projects/${project.id}/audit`}
+                className="rounded-full border border-line px-4 py-2 text-sm hover:border-ink"
+              >
+                Protokoll
+              </Link>
+            ) : null}
             {caps.manageProject ? (
               <Link
                 href={`/projects/${project.id}/settings`}
@@ -510,6 +512,12 @@ function ItemDrawer({
             ) : (
               <h2 className="mt-1 font-display text-2xl">{item.title}</h2>
             )}
+            {!canEdit ? (
+              <p className="mt-2 text-xs text-muted">
+                Ihre Rolle darf Felder nicht ändern.
+                {caps.comment ? " Kommentare im Verlauf sind erlaubt." : ""}
+              </p>
+            ) : null}
           </div>
           <button type="button" onClick={onClose} className="text-sm text-muted hover:text-ink">
             Schließen
@@ -523,7 +531,7 @@ function ItemDrawer({
               disabled={!canStatus}
               value={draft.status}
               onChange={(e) => set("status", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:opacity-60"
+              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {STATUSES.map((s) => (
                 <option key={s} value={s}>
@@ -538,7 +546,7 @@ function ItemDrawer({
               disabled={!canEdit}
               value={draft.priority}
               onChange={(e) => set("priority", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:opacity-60"
+              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
@@ -553,7 +561,7 @@ function ItemDrawer({
               disabled={!canEdit}
               value={draft.category}
               onChange={(e) => set("category", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:opacity-60"
+              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -591,7 +599,7 @@ function ItemDrawer({
               disabled={!canEdit}
               value={draft.dueDate ? draft.dueDate.slice(0, 10) : ""}
               onChange={(e) => set("dueDate", e.target.value ? new Date(e.target.value).toISOString() : null)}
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:opacity-60"
+              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </label>
           <label className="block">
@@ -600,7 +608,7 @@ function ItemDrawer({
               disabled={!canEdit}
               value={draft.source}
               onChange={(e) => set("source", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:opacity-60"
+              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </label>
           <label className="block">
@@ -611,7 +619,7 @@ function ItemDrawer({
               onChange={(e) =>
                 set("ownerInternal", intern.find((m) => m.id === e.target.value) ?? null)
               }
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:opacity-60"
+              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="">—</option>
               {intern.map((m) => (
@@ -629,7 +637,7 @@ function ItemDrawer({
               onChange={(e) =>
                 set("ownerCustomer", kunden.find((m) => m.id === e.target.value) ?? null)
               }
-              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:opacity-60"
+              className="mt-1 w-full rounded-lg border border-line bg-paper px-2 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="">—</option>
               {kunden.map((m) => (
