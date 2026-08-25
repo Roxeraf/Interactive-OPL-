@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String
+  title        String?
+  organization String?
+  initials     String
+  accent       String
+  createdAt    DateTime @default(now())
+
+  memberships     ProjectMember[]
+  ownedInternal   OpenItem[]      @relation("OwnerInternal")
+  ownedCustomer   OpenItem[]      @relation("OwnerCustomer")
+  createdItems    OpenItem[]      @relation("CreatedBy")
+  comments        Comment[]
+  audits          AuditEvent[]
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  customerName String
+  description String?
+  status      String   @default("AKTIV")
+  site        String?
+  createdAt   DateTime @default(now())
+
+  customerCanCreate              Boolean @default(false)
+  customerCanEdit                Boolean @default(false)
+  customerCanComment             Boolean @default(true)
+  customerCanChangeStatus        Boolean @default(false)
+  customerCanSeeAudit            Boolean @default(false)
+  customerCanExport              Boolean @default(false)
+  customerCanSeeInternalOwners   Boolean @default(true)
+
+  members ProjectMember[]
+  items   OpenItem[]
+  audits  AuditEvent[]
+}
+
+model ProjectMember {
+  id        String  @id @default(cuid())
+  projectId String
+  userId    String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+}
+
+model OpenItem {
+  id              String    @id @default(cuid())
+  projectId       String
+  number          Int
+  title           String
+  description     String    @default("")
+  measure         String    @default("")
+  resolution      String    @default("")
+  category        String
+  priority        String
+  status          String
+  visibility      String    @default("SHARED")
+  source          String    @default("")
+  capturedAt      DateTime  @default(now())
+  dueDate         DateTime?
+  resolvedAt      DateTime?
+  ownerInternalId String?
+  ownerCustomerId String?
+  createdById     String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project       Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ownerInternal User?        @relation("OwnerInternal", fields: [ownerInternalId], references: [id])
+  ownerCustomer User?        @relation("OwnerCustomer", fields: [ownerCustomerId], references: [id])
+  createdBy     User         @relation("CreatedBy", fields: [createdById], references: [id])
+  comments      Comment[]
+  audits        AuditEvent[]
+
+  @@unique([projectId, number])
+  @@index([projectId, status])
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  itemId     String
+  userId     String
+  body       String
+  isInternal Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  item OpenItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditEvent {
+  id        String   @id @default(cuid())
+  projectId String
+  itemId    String?
+  userId    String
+  action    String
+  field     String?
+  oldValue  String?
+  newValue  String?
+  summary   String
+  createdAt DateTime @default(now())
+
+  project Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  item    OpenItem? @relation(fields: [itemId], references: [id], onDelete: SetNull)
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+  @@index([itemId])
+}

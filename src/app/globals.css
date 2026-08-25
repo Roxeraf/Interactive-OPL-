@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-paper: #f3eee4;
+  --color-raised: #faf7f1;
+  --color-ink: #1a1814;
+  --color-muted: #5c574e;
+  --color-line: #d9d0c1;
+  --color-copper: #c05621;
+  --color-copper-deep: #9a3412;
+  --color-forest: #1f4d3a;
+  --color-teal: #0e5c57;
+  --color-sidebar: #14120f;
+  --color-danger: #b42318;
+  --color-amber: #b45309;
+  --color-ok: #157a4b;
+  --font-sans: var(--font-outfit);
+  --font-display: var(--font-fraunces);
+  --font-mono: var(--font-ibm);
+}
+
+html,
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-feature-settings: "tnum";
+}
+
+.draft-grid {
+  background-image:
+    linear-gradient(to right, rgba(26, 24, 20, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(26, 24, 20, 0.045) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.paper-shadow {
+  box-shadow:
+    0 1px 0 rgba(26, 24, 20, 0.04),
+    0 18px 40px -24px rgba(26, 24, 20, 0.35);
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #c4b8a5 transparent;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+::selection {
+  background: #ead7c1;
+  color: #1a1814;
+}
