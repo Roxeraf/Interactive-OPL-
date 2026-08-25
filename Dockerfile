@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1
-
 # Klarpunkt — Node 22 is pinned here so local Node versions no longer matter.
 # Next.js 16 requires Node >= 20.9; this image is the supported runtime.
 ARG NODE_VERSION=22.14.0
