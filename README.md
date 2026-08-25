@@ -26,15 +26,27 @@ Status: Offen, In Arbeit, Wartet auf Kunde, Wartet intern, Gelöst, Verworfen.
 
 Die App läuft in einem Container mit **Node.js 22**. Lokal muss keine Node-Version installiert oder passend gemacht werden — [Docker Desktop](https://www.docker.com/products/docker-desktop/) reicht.
 
+**Erster Start** (lädt das Node-Image, installiert Pakete, baut die App — oft 1–3 Minuten):
+
 ```bash
 docker compose up --build
 ```
 
 Öffnen: [http://localhost:3000](http://localhost:3000)
 
+Danach reicht ein Start **ohne** `--build` (sekundenschnell, Image ist schon da):
+
+```bash
+docker compose up
+```
+
+`--build` nur erneut, wenn sich `package.json`, das Dockerfile oder der Quellcode geändert haben (z. B. nach `git pull`).
+
 Beim ersten Start legt der Container die SQLite-Datenbank an, spielt die Demo-Daten ein und startet die App. Die Datenbank liegt im Docker-Volume `klarpunkt-data` und überlebt Neustarts.
 
 Stoppen: `Ctrl+C`, danach optional `docker compose down`. Datenbank zurücksetzen: `docker compose down -v` (Volume wird gelöscht) und erneut `docker compose up --build`.
+
+Unter **Docker Desktop für Windows** wirkt der erste Build oft „hängend“, weil zehntausende kleine Dateien aus `node_modules` ins Linux-VM-Dateisystem kopiert werden. Das Image-Tag `klarpunkt:local` danach wiederzuverwenden ist deshalb wichtig — nicht jedes Mal `--build` anhängen.
 
 ### Entwicklung im Container (Hot Reload, ohne lokale Node-Installation)
 
