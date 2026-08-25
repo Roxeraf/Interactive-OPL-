@@ -22,7 +22,41 @@ Nr. · Erfasst am · Quelle / Meeting · Kategorie · Offener Punkt · Beschreib
 
 Status: Offen, In Arbeit, Wartet auf Kunde, Wartet intern, Gelöst, Verworfen.
 
-## Start
+## Start mit Docker (empfohlen)
+
+Die App läuft in einem Container mit **Node.js 22**. Lokal muss keine Node-Version installiert oder passend gemacht werden — [Docker Desktop](https://www.docker.com/products/docker-desktop/) reicht.
+
+```bash
+docker compose up --build
+```
+
+Öffnen: [http://localhost:3000](http://localhost:3000)
+
+Beim ersten Start legt der Container die SQLite-Datenbank an, spielt die Demo-Daten ein und startet die App. Die Datenbank liegt im Docker-Volume `klarpunkt-data` und überlebt Neustarts.
+
+Stoppen: `Ctrl+C`, danach optional `docker compose down`. Datenbank zurücksetzen: `docker compose down -v` (Volume wird gelöscht) und erneut `docker compose up --build`.
+
+### Entwicklung im Container (Hot Reload, ohne lokale Node-Installation)
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+Quellcode wird ins Container-Dateisystem gespiegelt. `node_modules` bleibt im Container (Volume `app_node_modules`), damit die Linux-Binaries von Next.js und Prisma nicht mit einer lokalen Windows-/macOS-Installation kollidieren.
+
+| Person | Rolle | E-Mail | Passwort |
+| --- | --- | --- | --- |
+| Lena Hofmann | Administration / PM | `admin@klarpunkt.local` | `Klarpunkt2026` |
+| Jonas Weber | Engineering intern | `intern@klarpunkt.local` | `Klarpunkt2026` |
+| Dr. Anna Richter | Kunde Nordwerk AG | `kunde@klarpunkt.local` | `Klarpunkt2026` |
+
+Im Demo-Projekt **NW-2026-014 Verpackungslinie VL-400** darf der Kunde kommentieren, aber nicht anlegen, bearbeiten oder das Protokoll sehen. Interne Punkte (Nachtrag, Lessons Learned) sind für den Kunden unsichtbar.
+
+Optional kannst du `AUTH_SECRET` in einer `.env` im Projektroot setzen. Ohne Datei verwendet Compose einen lokalen Standardwert.
+
+## Start ohne Docker
+
+Nur nötig, wenn du nicht mit Docker arbeitest. Next.js 16 braucht **Node.js 20.9 oder neuer** (empfohlen: 22, siehe `.nvmrc`).
 
 ```bash
 cp .env.example .env
@@ -33,14 +67,6 @@ npm run dev
 
 Öffnen: [http://localhost:3000](http://localhost:3000)
 
-| Person | Rolle | E-Mail | Passwort |
-| --- | --- | --- | --- |
-| Lena Hofmann | Administration / PM | `admin@klarpunkt.local` | `Klarpunkt2026` |
-| Jonas Weber | Engineering intern | `intern@klarpunkt.local` | `Klarpunkt2026` |
-| Dr. Anna Richter | Kunde Nordwerk AG | `kunde@klarpunkt.local` | `Klarpunkt2026` |
-
-Im Demo-Projekt **NW-2026-014 Verpackungslinie VL-400** darf der Kunde kommentieren, aber nicht anlegen, bearbeiten oder das Protokoll sehen. Interne Punkte (Nachtrag, Lessons Learned) sind für den Kunden unsichtbar.
-
 ## Technik
 
-Next.js 16 · React 19 · Prisma 6 / SQLite · JWT-Session · ExcelJS
+Next.js 16 · React 19 · Prisma 6 / SQLite · JWT-Session · ExcelJS · Docker (Node 22)

@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    image: klarpunkt:dev
+    container_name: klarpunkt-dev
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+      DATABASE_URL: file:/data/klarpunkt.db
+      AUTH_SECRET: ${AUTH_SECRET:-klarpunkt-docker-local-secret-bitte-ersetzen}
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - .:/app
+      - app_node_modules:/app/node_modules
+      - klarpunkt-data:/data
+    stdin_open: true
+    tty: true
+
+volumes:
+  app_node_modules:
+  klarpunkt-data:
