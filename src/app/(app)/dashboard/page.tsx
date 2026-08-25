@@ -52,12 +52,13 @@ export default async function DashboardPage() {
 
   const greeting =
     new Date().getHours() < 12 ? "Guten Morgen" : new Date().getHours() < 18 ? "Guten Tag" : "Guten Abend";
+  const firstName = user.name.replace(/^Dr\.\s*/i, "").split(" ")[0];
 
   return (
     <main className="draft-grid min-h-screen px-8 py-10">
       <p className="text-[11px] uppercase tracking-[0.22em] text-muted">Lagebild</p>
       <h1 className="mt-2 font-display text-5xl tracking-tight">
-        {greeting}, {user.name.split(" ")[0]}.
+        {greeting}, {firstName}.
       </h1>
       <p className="mt-3 max-w-xl text-muted">
         {user.role === "CUSTOMER"
