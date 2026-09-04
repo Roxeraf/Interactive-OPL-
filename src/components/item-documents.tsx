@@ -235,19 +235,27 @@ function DocumentPreview({
             Schließen
           </button>
         </header>
-        <div className="min-h-0 flex-1 bg-canvas">
+        <div className="relative min-h-0 flex-1 bg-[#d8dee8]">
           {file.preview === "image" ? (
-            <div className="flex h-full items-center justify-center overflow-auto p-4">
+            <div className="absolute inset-0 p-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={file.filename} className="max-h-full max-w-full object-contain" />
+              <img
+                src={src}
+                alt={file.filename}
+                className="h-full w-full object-contain"
+              />
             </div>
           ) : null}
           {file.preview === "pdf" ? (
-            <iframe title={file.filename} src={src} className="h-full w-full bg-white" />
+            <iframe title={file.filename} src={src} className="absolute inset-0 h-full w-full bg-white" />
           ) : null}
-          {file.preview === "text" ? <TextPreview key={file.id} src={src} /> : null}
+          {file.preview === "text" ? (
+            <div className="absolute inset-0">
+              <TextPreview key={file.id} src={src} />
+            </div>
+          ) : null}
           {file.preview === "none" ? (
-            <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center">
               <Paperclip className="h-8 w-8 text-muted" />
               <p className="text-sm font-medium">Keine integrierte Vorschau für diesen Dateityp.</p>
               <p className="max-w-sm text-sm text-muted">
