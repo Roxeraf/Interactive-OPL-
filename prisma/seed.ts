@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+import { buildPlainPdf, resetUploadRoot, saveUploadBuffer } from "../src/lib/files";
 
 const prisma = new PrismaClient();
 const PASSWORD = "Klarpunkt2026";
@@ -7,10 +8,12 @@ const PASSWORD = "Klarpunkt2026";
 async function main() {
   await prisma.auditEvent.deleteMany();
   await prisma.comment.deleteMany();
+  await prisma.attachment.deleteMany();
   await prisma.openItem.deleteMany();
   await prisma.projectMember.deleteMany();
   await prisma.project.deleteMany();
   await prisma.user.deleteMany();
+  await resetUploadRoot();
 
   const hash = await bcrypt.hash(PASSWORD, 10);
 
@@ -596,6 +599,69 @@ async function main() {
           newValue: h.newValue ?? null,
           summary: h.summary,
           createdAt: d(h.at),
+        },
+      });
+    }
+
+    if (item.number === 2) {
+      const pdf = buildPlainPdf("OP-002 Telegramm 14", [
+        "Vorschlag Byte-Belegung Palettenwechsel",
+        "Byte 7: Status Palettenhub  0 = unten  1 = oben",
+        "Byte 8: Sequenznummer Wechsel",
+        "Byte 9: Reserve / Quittung MES",
+        "Stand: 20.08.2026  -  Jonas Weber",
+      ]);
+      const storedPdf = await saveUploadBuffer(
+        "Telegramm-14-Bytebelegung.pdf",
+        pdf,
+        "application/pdf",
+      );
+      await prisma.attachment.create({
+        data: {
+          itemId: created.id,
+          uploadedById: jonas.id,
+          filename: storedPdf.filename,
+          storedName: storedPdf.storedName,
+          mimeType: storedPdf.mimeType,
+          size: storedPdf.size,
+          createdAt: d("2026-08-20T16:00:00.000Z"),
+        },
+      });
+      const notes = Buffer.from(
+        [
+          "OP-002 / Telegramm 14",
+          "",
+          "Offene Fragen an Nordwerk IT:",
+          "- Quittung auf Byte 9: Puls oder Pegel?",
+          "- Timeout Palettenwechsel?",
+          "",
+          "Jonas Weber, 20.08.2026",
+          "",
+        ].join("\n"),
+        "utf8",
+      );
+      const storedTxt = await saveUploadBuffer("Rueckfragen-MES.txt", notes, "text/plain");
+      await prisma.attachment.create({
+        data: {
+          itemId: created.id,
+          uploadedById: jonas.id,
+          filename: storedTxt.filename,
+          storedName: storedTxt.storedName,
+          mimeType: storedTxt.mimeType,
+          size: storedTxt.size,
+          createdAt: d("2026-08-20T16:02:00.000Z"),
+        },
+      });
+      await prisma.auditEvent.create({
+        data: {
+          projectId: nordwerk.id,
+          itemId: created.id,
+          userId: jonas.id,
+          action: "UPLOAD",
+          field: "attachment",
+          newValue: storedPdf.filename,
+          summary: "OP-002 · Dokument hinterlegt: Telegramm-14-Bytebelegung.pdf",
+          createdAt: d("2026-08-20T16:00:00.000Z"),
         },
       });
     }

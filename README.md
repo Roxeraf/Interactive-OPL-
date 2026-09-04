@@ -11,6 +11,7 @@ Sie war in diesem Repository nicht enthalten. Die App bildet die **genormte V5.0
 ## Was die App kann
 
 - **Lagebild statt Tabelle:** Tafel (Status-Spalten) und Register (dichte Liste), Karten statt Zeilen.
+- **Dokumente je Punkt:** Upload, Download und Vorschau (PDF, Bilder, Text) direkt in der OPL.
 - **Vollständiges Protokoll:** Jede Feldänderung speichert Person, Zeitpunkt, alten und neuen Wert.
 - **Kundenrechte je Projekt:** Anlegen, Bearbeiten, Kommentieren, Status, Protokoll, Excel-Export, interne Namen — einzeln schaltbar.
 - **Sichtbarkeit:** Punkte können *mit Kunde geteilt* oder *nur intern* sein. Interne Kommentare bleiben intern.

@@ -9,6 +9,7 @@ node_modules
 prisma/*.db
 prisma/*.db-journal
 coverage
+uploads
 .vscode
 .idea
 .DS_Store

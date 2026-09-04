@@ -26,6 +26,7 @@ model User {
   createdItems    OpenItem[]      @relation("CreatedBy")
   comments        Comment[]
   audits          AuditEvent[]
+  attachments     Attachment[]
 }
 
 model Project {
@@ -89,9 +90,26 @@ model OpenItem {
   createdBy     User         @relation("CreatedBy", fields: [createdById], references: [id])
   comments      Comment[]
   audits        AuditEvent[]
+  attachments   Attachment[]
 
   @@unique([projectId, number])
   @@index([projectId, status])
+}
+
+model Attachment {
+  id           String   @id @default(cuid())
+  itemId       String
+  uploadedById String
+  filename     String
+  storedName   String   @unique
+  mimeType     String
+  size         Int
+  createdAt    DateTime @default(now())
+
+  item       OpenItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  uploadedBy User     @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  @@index([itemId, createdAt])
 }
 
 model Comment {

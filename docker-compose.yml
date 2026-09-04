@@ -14,6 +14,7 @@ services:
       PORT: "3000"
       DATABASE_URL: file:/data/klarpunkt.db
       AUTH_SECRET: ${AUTH_SECRET:-klarpunkt-docker-local-secret-bitte-ersetzen}
+      UPLOAD_DIR: /data/uploads
     volumes:
       - klarpunkt-data:/data
     restart: unless-stopped

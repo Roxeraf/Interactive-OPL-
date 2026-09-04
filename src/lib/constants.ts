@@ -82,6 +82,7 @@ export const FIELD_LABEL: Record<string, string> = {
   resolvedAt: "Erledigt am",
   ownerInternalId: "Verantwortlich intern",
   ownerCustomerId: "Verantwortlich Kunde",
+  attachment: "Dokument",
 };
 
 export function formatOpNumber(n: number) {

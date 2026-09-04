@@ -29,6 +29,7 @@ export default async function ProjectPage({
           ownerCustomer: true,
           createdBy: true,
           comments: { include: { user: true }, orderBy: { createdAt: "asc" } },
+          attachments: { include: { uploadedBy: true }, orderBy: { createdAt: "asc" } },
         },
         orderBy: { number: "asc" },
       },
