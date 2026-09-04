@@ -6,13 +6,18 @@ import { loginAction } from "@/app/actions/auth";
 const ACCOUNTS = [
   {
     email: "admin@klarpunkt.local",
-    role: "Projektleitung intern",
+    role: "PureLoX Administration",
     name: "Lena Hofmann",
   },
   {
     email: "intern@klarpunkt.local",
-    role: "Engineering",
+    role: "PureLoX Projektteam",
     name: "Jonas Weber",
+  },
+  {
+    email: "sicht@klarpunkt.local",
+    role: "PureLoX Einsicht",
+    name: "Stefan Vogt",
   },
   {
     email: "kunde@klarpunkt.local",

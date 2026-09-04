@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
-import { isAdmin, isInternal } from "@/lib/permissions";
+import { capabilitiesFor, canSeeItem, projectWhereFor } from "@/lib/permissions";
 import { PageHeader } from "@/components/page-header";
 
 export default async function ProjectsPage() {
   const user = await requireUser();
   const projects = await prisma.project.findMany({
-    where: isAdmin(user) ? undefined : { members: { some: { userId: user.id } } },
+    where: projectWhereFor(user),
     include: {
-      items: { select: { status: true, visibility: true, dueDate: true } },
       members: { include: { user: true } },
+      items: { select: { status: true, visibility: true, dueDate: true } },
     },
     orderBy: { code: "asc" },
   });
@@ -20,7 +20,7 @@ export default async function ProjectsPage() {
       <PageHeader
         title="Projekte"
         count={`${projects.length} Datensätze`}
-        description="Jedes Kundenprojekt führt eine eigene Offene-Punkte-Liste nach Vorlage V5.0 — digital, mit Lagebild statt Zeilenchaos."
+        description="Jedes Kundenprojekt führt eine eigene Offene-Punkte-Liste. Sichtbar sind nur Projekte, denen Sie zugeordnet sind — außer für die Administration."
       />
       <div className="overflow-x-auto rounded-sm border border-line bg-raised">
         <table className="w-full text-sm">
@@ -36,7 +36,9 @@ export default async function ProjectsPage() {
           </thead>
           <tbody>
             {projects.map((p, index) => {
-              const items = isInternal(user) ? p.items : p.items.filter((i) => i.visibility === "SHARED");
+              const membership = p.members.find((m) => m.userId === user.id);
+              const caps = capabilitiesFor(user, p, membership);
+              const items = p.items.filter((i) => canSeeItem(i, caps));
               const open = items.filter((i) => i.status !== "GELOEST" && i.status !== "VERWORFEN").length;
               return (
                 <tr

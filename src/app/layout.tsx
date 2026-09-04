@@ -8,9 +8,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Klarpunkt — Digitale Offene-Punkte-Liste",
+  title: "Klarpunkt — PureLoX Offene-Punkte-Liste",
   description:
-    "Interaktive OPL nach Vorlage V5.0: Protokollierung, Kundenrechte, modernes Lagebild statt Excel-Tabelle.",
+    "Interaktive OPL nach Vorlage V5.0: Rollen je Person und Projekt, Kundenrechte, Protokoll statt Excel.",
+  icons: { icon: "/favicon.png" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

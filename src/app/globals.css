@@ -1,24 +1,27 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-navy: #001c48;
-  --color-brand: #0066cc;
-  --color-brand-hover: #0052a3;
-  --color-canvas: #edf2f7;
+  --color-navy: #00164d;
+  --color-navy-mid: #002f69;
+  --color-brand: #005acb;
+  --color-brand-hover: #014dad;
+  --color-ruby: #cf1057;
+  --color-cyan: #289ff5;
+  --color-canvas: #eff5ff;
   --color-sidebar: #f8f9fa;
-  --color-paper: #edf2f7;
+  --color-paper: #eff5ff;
   --color-raised: #ffffff;
-  --color-ink: #1a202c;
-  --color-muted: #718096;
-  --color-line: #e2e8f0;
-  --color-active: #e8eef6;
-  --color-copper: #0066cc;
-  --color-copper-deep: #004a99;
-  --color-forest: #2b6cb0;
-  --color-teal: #2c5282;
-  --color-danger: #c53030;
+  --color-ink: #212529;
+  --color-muted: #6c757d;
+  --color-line: #dee2e6;
+  --color-active: #e2ecfd;
+  --color-copper: #005acb;
+  --color-copper-deep: #014dad;
+  --color-forest: #005acb;
+  --color-teal: #00a9ce;
+  --color-danger: #e3000f;
   --color-amber: #d69e2e;
-  --color-ok: #38a169;
+  --color-ok: #28a745;
   --font-sans: var(--font-inter);
   --font-display: var(--font-inter);
   --font-mono: var(--font-inter);
@@ -47,12 +50,12 @@ body {
 }
 
 .paper-shadow {
-  box-shadow: 0 1px 2px rgba(26, 32, 44, 0.06);
+  box-shadow: 0 1px 2px rgba(0, 22, 77, 0.06);
 }
 
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e0 transparent;
+  scrollbar-color: #c7dafc transparent;
 }
 
 input,
@@ -62,8 +65,8 @@ textarea {
 }
 
 ::selection {
-  background: #c5ddf5;
-  color: #001c48;
+  background: #c7dafc;
+  color: #00164d;
 }
 
 .btn {
@@ -115,7 +118,7 @@ textarea {
   border-radius: 9999px;
   background: var(--color-brand);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.35);
+  box-shadow: 0 2px 8px rgba(0, 90, 203, 0.35);
 }
 
 .fab:hover {
@@ -134,7 +137,7 @@ textarea {
 
 .field:focus {
   border-color: var(--color-brand);
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+  box-shadow: 0 0 0 3px rgba(0, 90, 203, 0.15);
 }
 
 .field:disabled {

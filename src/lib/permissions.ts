@@ -1,19 +1,17 @@
-import type { OpenItem, Project } from "@prisma/client";
+import type { OpenItem, Project, ProjectMember } from "@prisma/client";
 import type { SessionUser } from "./auth";
+import {
+  defaultProjectRole,
+  isProjectRole,
+  noneCapabilities,
+  PROJECT_ROLE_META,
+  type Capabilities,
+  type ProjectRole,
+} from "./roles";
 
-export type Capabilities = {
-  create: boolean;
-  edit: boolean;
-  comment: boolean;
-  changeStatus: boolean;
-  seeAudit: boolean;
-  export: boolean;
-  seeInternal: boolean;
-  seeInternalOwners: boolean;
-  manageProject: boolean;
-  manageUsers: boolean;
-  internalComment: boolean;
-};
+export type { Capabilities } from "./roles";
+
+export type MemberLike = Pick<ProjectMember, "role"> | { role: string } | null | undefined;
 
 export function isInternal(user: { role: string }) {
   return user.role === "ADMIN" || user.role === "INTERNAL";
@@ -27,57 +25,78 @@ export function isCustomer(user: { role: string }) {
   return user.role === "CUSTOMER";
 }
 
+function resolveRole(user: SessionUser, membership: MemberLike): ProjectRole | null {
+  if (membership?.role && isProjectRole(membership.role)) return membership.role;
+  if (isAdmin(user)) return "PLX_LEAD";
+  if (!membership) return null;
+  return defaultProjectRole(user.role);
+}
+
 export function capabilitiesFor(
   user: SessionUser,
   project: Project,
+  membership?: MemberLike,
 ): Capabilities {
-  if (isInternal(user)) {
+  const role = resolveRole(user, membership);
+  if (!role) return noneCapabilities();
+  if (PROJECT_ROLE_META[role].group === "plx" && isCustomer(user)) {
+    return noneCapabilities();
+  }
+  if (PROJECT_ROLE_META[role].group === "customer" && isInternal(user)) {
+    return noneCapabilities();
+  }
+
+  const base = { ...PROJECT_ROLE_META[role].caps, manageUsers: isAdmin(user) };
+
+  if (PROJECT_ROLE_META[role].group === "customer") {
     return {
-      create: true,
-      edit: true,
-      comment: true,
-      changeStatus: true,
-      seeAudit: true,
-      export: true,
-      seeInternal: true,
-      seeInternalOwners: true,
-      manageProject: true,
-      manageUsers: isAdmin(user),
-      internalComment: true,
+      ...base,
+      create: base.create && project.customerCanCreate,
+      edit: base.edit && project.customerCanEdit,
+      comment: base.comment && project.customerCanComment,
+      changeStatus: base.changeStatus && project.customerCanChangeStatus,
+      seeAudit: base.seeAudit && project.customerCanSeeAudit,
+      export: base.export && project.customerCanExport,
+      seeInternal: false,
+      seeInternalOwners: base.seeInternalOwners && project.customerCanSeeInternalOwners,
+      manageProject: false,
+      internalComment: false,
+      manageUsers: false,
     };
   }
 
-  return {
-    create: project.customerCanCreate,
-    edit: project.customerCanEdit,
-    comment: project.customerCanComment,
-    changeStatus: project.customerCanChangeStatus,
-    seeAudit: project.customerCanSeeAudit,
-    export: project.customerCanExport,
-    seeInternal: false,
-    seeInternalOwners: project.customerCanSeeInternalOwners,
-    manageProject: false,
-    manageUsers: false,
-    internalComment: false,
-  };
+  return base;
 }
 
 export function canSeeItem(
-  user: SessionUser,
   item: Pick<OpenItem, "visibility">,
+  caps: Capabilities,
 ) {
-  if (isInternal(user)) return true;
+  if (caps.seeInternal) return true;
   return item.visibility === "SHARED";
 }
 
-export async function assertProjectAccess(
-  user: SessionUser,
-  projectId: string,
-) {
-  if (isAdmin(user)) return true;
+export async function getProjectAccess(user: SessionUser, projectId: string) {
   const { prisma } = await import("./db");
-  const member = await prisma.projectMember.findUnique({
+  const project = await prisma.project.findUnique({ where: { id: projectId } });
+  if (!project) return null;
+  const membership = await prisma.projectMember.findUnique({
     where: { projectId_userId: { projectId, userId: user.id } },
   });
-  return Boolean(member);
+  if (!membership && !isAdmin(user)) return null;
+  return {
+    project,
+    membership,
+    caps: capabilitiesFor(user, project, membership),
+  };
+}
+
+export async function assertProjectAccess(user: SessionUser, projectId: string) {
+  const access = await getProjectAccess(user, projectId);
+  return Boolean(access);
+}
+
+export function projectWhereFor(user: SessionUser) {
+  if (isAdmin(user)) return undefined;
+  return { members: { some: { userId: user.id } } };
 }

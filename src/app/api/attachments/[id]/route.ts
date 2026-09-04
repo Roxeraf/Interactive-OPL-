@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { assertProjectAccess, canSeeItem } from "@/lib/permissions";
+import { getProjectAccess, canSeeItem } from "@/lib/permissions";
 import { contentDisposition, readStoredFile } from "@/lib/files";
 
 export const runtime = "nodejs";
@@ -24,8 +24,8 @@ export async function GET(
     return NextResponse.json({ error: "Dokument nicht gefunden." }, { status: 404 });
   }
 
-  const allowed = await assertProjectAccess(user, attachment.item.projectId);
-  if (!allowed || !canSeeItem(user, attachment.item)) {
+  const access = await getProjectAccess(user, attachment.item.projectId);
+  if (!access || !canSeeItem(attachment.item, access.caps)) {
     return NextResponse.json({ error: "Kein Zugriff." }, { status: 403 });
   }
 

@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
-import { isAdmin, isInternal } from "@/lib/permissions";
+import {
+  capabilitiesFor,
+  canSeeItem,
+  isCustomer,
+  projectWhereFor,
+} from "@/lib/permissions";
 import { formatDateTime, isOverdue } from "@/lib/dates";
 import { formatOpNumber } from "@/lib/constants";
 import { StatusBadge } from "@/components/ui";
@@ -9,13 +14,11 @@ import { PageHeader } from "@/components/page-header";
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const memberFilter = isAdmin(user)
-    ? {}
-    : { members: { some: { userId: user.id } } };
 
   const projects = await prisma.project.findMany({
-    where: memberFilter,
+    where: projectWhereFor(user),
     include: {
+      members: { where: { userId: user.id } },
       items: {
         include: { ownerInternal: true, ownerCustomer: true },
         orderBy: { updatedAt: "desc" },
@@ -24,32 +27,39 @@ export default async function DashboardPage() {
     orderBy: { code: "asc" },
   });
 
-  const visible = projects.map((p) => ({
-    ...p,
-    items: isInternal(user) ? p.items : p.items.filter((i) => i.visibility === "SHARED"),
-  }));
+  const visible = projects.map((p) => {
+    const caps = capabilitiesFor(user, p, p.members[0]);
+    return {
+      ...p,
+      caps,
+      items: p.items.filter((i) => canSeeItem(i, caps)),
+    };
+  });
 
   const allItems = visible.flatMap((p) => p.items.map((i) => ({ ...i, project: p })));
   const open = allItems.filter((i) => i.status !== "GELOEST" && i.status !== "VERWORFEN");
   const overdue = open.filter((i) => isOverdue(i.dueDate?.toISOString() ?? null, i.status));
   const mine = open.filter((i) => i.ownerInternalId === user.id || i.ownerCustomerId === user.id);
   const waiting = open.filter((i) =>
-    user.role === "CUSTOMER" ? i.status === "WARTE_KUNDE" : i.status === "WARTE_INTERN",
+    isCustomer(user) ? i.status === "WARTE_KUNDE" : i.status === "WARTE_INTERN",
   );
 
   const audits = await prisma.auditEvent.findMany({
-    where: isInternal(user)
-      ? { projectId: { in: visible.map((p) => p.id) } }
-      : {
-          projectId: {
-            in: visible.filter((p) => p.customerCanSeeAudit).map((p) => p.id),
-          },
-          OR: [{ itemId: null }, { item: { visibility: "SHARED" } }],
-        },
+    where: {
+      projectId: { in: visible.filter((p) => p.caps.seeAudit).map((p) => p.id) },
+    },
     include: { user: true, item: true, project: true },
     orderBy: { createdAt: "desc" },
-    take: 8,
+    take: 16,
   });
+  const visibleAudits = audits
+    .filter((a) => {
+      const project = visible.find((p) => p.id === a.projectId);
+      if (!project) return false;
+      if (!a.item) return true;
+      return canSeeItem(a.item, project.caps);
+    })
+    .slice(0, 8);
 
   const greeting =
     new Date().getHours() < 12 ? "Guten Morgen" : new Date().getHours() < 18 ? "Guten Tag" : "Guten Abend";
@@ -62,7 +72,7 @@ export default async function DashboardPage() {
         description={`${greeting}, ${user.name.split(" ")[0]}. ${
           user.role === "CUSTOMER"
             ? "Sie sehen die mit Ihnen geteilten offenen Punkte. Interne Notizen und verdeckte Punkte bleiben beim Lieferanten."
-            : "Die OPL ersetzt das Excel: ein Register, ein Protokoll, klare Kundenrechte."
+            : "Die OPL ersetzt das Excel: ein Register, ein Protokoll, klare Rollen je Person und Projekt."
         }`}
       />
 
@@ -70,7 +80,7 @@ export default async function DashboardPage() {
         <DashKpi n={open.length} l="Offen in der Lage" />
         <DashKpi n={overdue.length} l="Überfällig" hot={overdue.length > 0} />
         <DashKpi n={mine.length} l="In Ihrer Verantwortung" />
-        <DashKpi n={waiting.length} l={user.role === "CUSTOMER" ? "Warten auf Sie" : "Warten intern"} />
+        <DashKpi n={waiting.length} l={isCustomer(user) ? "Warten auf Sie" : "Warten intern"} />
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
@@ -107,7 +117,7 @@ export default async function DashboardPage() {
             <h2 className="text-sm font-semibold">Letzte Änderungen</h2>
           </div>
           <ol className="divide-y divide-line">
-            {audits.map((a) => (
+            {visibleAudits.map((a) => (
               <li key={a.id} className="px-5 py-3 text-sm">
                 <p className="font-medium">{a.summary}</p>
                 <p className="mt-0.5 text-xs text-muted">
@@ -115,7 +125,7 @@ export default async function DashboardPage() {
                 </p>
               </li>
             ))}
-            {audits.length === 0 ? <li className="px-5 py-8 text-sm text-muted">Noch kein Protokoll.</li> : null}
+            {visibleAudits.length === 0 ? <li className="px-5 py-8 text-sm text-muted">Noch kein Protokoll.</li> : null}
           </ol>
         </section>
       </div>

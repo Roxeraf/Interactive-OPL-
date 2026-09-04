@@ -2,9 +2,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import {
-  assertProjectAccess,
-  capabilitiesFor,
   canSeeItem,
+  getProjectAccess,
 } from "@/lib/permissions";
 import { serializeItem, serializeProject, toPerson } from "@/lib/serialize";
 import { OplWorkspace } from "@/components/opl-workspace";
@@ -16,8 +15,8 @@ export default async function ProjectPage({
 }) {
   const { id } = await params;
   const user = await requireUser();
-  const allowed = await assertProjectAccess(user, id);
-  if (!allowed) notFound();
+  const access = await getProjectAccess(user, id);
+  if (!access) notFound();
 
   const project = await prisma.project.findUnique({
     where: { id },
@@ -37,8 +36,8 @@ export default async function ProjectPage({
   });
   if (!project) notFound();
 
-  const caps = capabilitiesFor(user, project);
-  const items = project.items.filter((i) => canSeeItem(user, i)).map((i) => serializeItem(i, caps));
+  const caps = access.caps;
+  const items = project.items.filter((i) => canSeeItem(i, caps)).map((i) => serializeItem(i, caps));
 
   return (
     <OplWorkspace

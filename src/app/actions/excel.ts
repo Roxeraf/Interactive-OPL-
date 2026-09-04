@@ -2,16 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
-import { prisma } from "@/lib/db";
 import { buildOplWorkbook, importOplWorkbook } from "@/lib/excel";
-import { assertProjectAccess, capabilitiesFor } from "@/lib/permissions";
+import { getProjectAccess } from "@/lib/permissions";
 
 export async function exportProjectXlsx(projectId: string) {
   const user = await requireUser();
-  const allowed = await assertProjectAccess(user, projectId);
-  if (!allowed) throw new Error("Kein Zugriff.");
-  const project = await prisma.project.findUniqueOrThrow({ where: { id: projectId } });
-  const caps = capabilitiesFor(user, project);
+  const access = await getProjectAccess(user, projectId);
+  if (!access) throw new Error("Kein Zugriff.");
+  const caps = access.caps;
   if (!caps.export) throw new Error("Export ist für Ihre Rolle deaktiviert.");
   const { wb, filename } = await buildOplWorkbook(projectId, caps.seeInternal);
   const buffer = await wb.xlsx.writeBuffer();
@@ -23,11 +21,9 @@ export async function exportProjectXlsx(projectId: string) {
 
 export async function importProjectXlsx(projectId: string, formData: FormData) {
   const user = await requireUser();
-  const allowed = await assertProjectAccess(user, projectId);
-  if (!allowed) throw new Error("Kein Zugriff.");
-  const project = await prisma.project.findUniqueOrThrow({ where: { id: projectId } });
-  const caps = capabilitiesFor(user, project);
-  if (!caps.manageProject) throw new Error("Import nur intern möglich.");
+  const access = await getProjectAccess(user, projectId);
+  if (!access) throw new Error("Kein Zugriff.");
+  if (!access.caps.manageProject) throw new Error("Import nur intern möglich.");
   const file = formData.get("file");
   if (!(file instanceof File)) throw new Error("Keine Datei übergeben.");
   const buf = Buffer.from(await file.arrayBuffer());

@@ -44,7 +44,7 @@ export function AppShell({
           </HeaderIcon>
         </div>
 
-        <Link href="/dashboard" className="flex items-center justify-center" aria-label="Klarpunkt">
+        <Link href="/dashboard" className="flex items-center justify-center" aria-label="PureLoX Klarpunkt">
           <Logo />
         </Link>
 

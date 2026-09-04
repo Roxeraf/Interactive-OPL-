@@ -8,18 +8,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String
-  passwordHash String
-  role         String
-  title        String?
-  organization String?
-  initials     String
-  accent       String
-  createdAt    DateTime @default(now())
+/// PureLoX-intern oder ein Kundenunternehmen.
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  kind      String
+  createdAt DateTime @default(now())
 
+  users    User[]
+  projects Project[]
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String
+  passwordHash   String
+  role           String
+  title          String?
+  organization   String?
+  organizationId String?
+  initials       String
+  accent         String
+  createdAt      DateTime @default(now())
+
+  org             Organization?   @relation(fields: [organizationId], references: [id])
   memberships     ProjectMember[]
   ownedInternal   OpenItem[]      @relation("OwnerInternal")
   ownedCustomer   OpenItem[]      @relation("OwnerCustomer")
@@ -30,32 +43,35 @@ model User {
 }
 
 model Project {
-  id          String   @id @default(cuid())
-  code        String   @unique
-  name        String
-  customerName String
-  description String?
-  status      String   @default("AKTIV")
-  site        String?
-  createdAt   DateTime @default(now())
+  id             String   @id @default(cuid())
+  code           String   @unique
+  name           String
+  customerName   String
+  organizationId String?
+  description    String?
+  status         String   @default("AKTIV")
+  site           String?
+  createdAt      DateTime @default(now())
 
-  customerCanCreate              Boolean @default(false)
-  customerCanEdit                Boolean @default(false)
-  customerCanComment             Boolean @default(true)
-  customerCanChangeStatus        Boolean @default(false)
-  customerCanSeeAudit            Boolean @default(false)
-  customerCanExport              Boolean @default(false)
-  customerCanSeeInternalOwners   Boolean @default(true)
+  customerCanCreate            Boolean @default(false)
+  customerCanEdit              Boolean @default(false)
+  customerCanComment           Boolean @default(true)
+  customerCanChangeStatus      Boolean @default(false)
+  customerCanSeeAudit          Boolean @default(false)
+  customerCanExport            Boolean @default(false)
+  customerCanSeeInternalOwners Boolean @default(true)
 
-  members ProjectMember[]
-  items   OpenItem[]
-  audits  AuditEvent[]
+  organization Organization?   @relation(fields: [organizationId], references: [id])
+  members      ProjectMember[]
+  items        OpenItem[]
+  audits       AuditEvent[]
 }
 
 model ProjectMember {
-  id        String  @id @default(cuid())
+  id        String @id @default(cuid())
   projectId String
   userId    String
+  role      String @default("PLX_MEMBER")
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 

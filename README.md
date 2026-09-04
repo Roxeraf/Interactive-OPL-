@@ -13,8 +13,10 @@ Sie war in diesem Repository nicht enthalten. Die App bildet die **genormte V5.0
 - **Lagebild statt Tabelle:** Tafel (Status-Spalten) und Register (dichte Liste), Karten statt Zeilen.
 - **Dokumente je Punkt:** Upload, Download und Vorschau (PDF, Bilder, Text) direkt in der OPL.
 - **Vollständiges Protokoll:** Jede Feldänderung speichert Person, Zeitpunkt, alten und neuen Wert.
-- **Kundenrechte je Projekt:** Anlegen, Bearbeiten, Kommentieren, Status, Protokoll, Excel-Export, interne Namen — einzeln schaltbar.
-- **Sichtbarkeit:** Punkte können *mit Kunde geteilt* oder *nur intern* sein. Interne Kommentare bleiben intern.
+- **Kunden und Unternehmen:** Jeder User gehört zu PureLoX oder zu einem Kundenunternehmen.
+- **Projektrollen:** Je Person und Projekt einstellbar (Leitung, Team, Einsicht bzw. Kunde bearbeiten/kommentieren/lesen).
+- **Kunden-Höchstgrenzen:** Was ein Kunde in einem Projekt höchstens darf — zusätzlich zur persönlichen Rolle.
+- **Sichtbarkeit:** Punkte können *mit Kunde geteilt* oder *nur intern* sein. Interne Kommentare bleiben intern. PureLoX-User sehen nur zugeordnete Projekte (Administration ausgenommen).
 - **Excel V5.0:** Export als `{Projekt}_Offene-Punkte_V5-0_{Datum}.xlsx`, Import bestehender Vorlagen.
 
 ## Felder (Vorlage V5.0)
@@ -59,11 +61,14 @@ Quellcode wird ins Container-Dateisystem gespiegelt. `node_modules` bleibt im Co
 
 | Person | Rolle | E-Mail | Passwort |
 | --- | --- | --- | --- |
-| Lena Hofmann | Administration / PM | `admin@klarpunkt.local` | `Klarpunkt2026` |
-| Jonas Weber | Engineering intern | `intern@klarpunkt.local` | `Klarpunkt2026` |
-| Dr. Anna Richter | Kunde Nordwerk AG | `kunde@klarpunkt.local` | `Klarpunkt2026` |
+| Lena Hofmann | Administration (PureLoX), Leitung beider Projekte | `admin@klarpunkt.local` | `Klarpunkt2026` |
+| Jonas Weber | PureLoX Projektteam, beide Projekte | `intern@klarpunkt.local` | `Klarpunkt2026` |
+| Stefan Vogt | PureLoX Einsicht, nur Nordwerk | `sicht@klarpunkt.local` | `Klarpunkt2026` |
+| Dr. Anna Richter | Kunde Nordwerk, kommentieren | `kunde@klarpunkt.local` | `Klarpunkt2026` |
 
-Im Demo-Projekt **NW-2026-014 Verpackungslinie VL-400** darf der Kunde kommentieren, aber nicht anlegen, bearbeiten oder das Protokoll sehen. Interne Punkte (Nachtrag, Lessons Learned) sind für den Kunden unsichtbar.
+Im Demo-Projekt **NW-2026-014 Verpackungslinie VL-400** darf Anna kommentieren, aber nicht anlegen oder bearbeiten. Thomas Krüger darf nur lesen. Stefan Vogt (PureLoX Controlling) sieht Nordwerk inklusive interner Punkte, darf aber nichts ändern und sieht Hölzer gar nicht. Interne Punkte (Nachtrag, Lessons Learned) sind für Kunden unsichtbar.
+
+Zuordnung und Rollen steuert die Administration unter **Personen** und **Kunden**, plus **Zugang** im jeweiligen Projekt.
 
 Optional kannst du `AUTH_SECRET` in einer `.env` im Projektroot setzen. Ohne Datei verwendet Compose einen lokalen Standardwert.
 

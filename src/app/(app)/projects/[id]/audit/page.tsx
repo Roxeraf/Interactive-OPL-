@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
-import { assertProjectAccess, capabilitiesFor, canSeeItem } from "@/lib/permissions";
+import { getProjectAccess, canSeeItem } from "@/lib/permissions";
 import { formatDateTime } from "@/lib/dates";
 import { FIELD_LABEL, formatOpNumber, labelOf } from "@/lib/constants";
 import { Avatar } from "@/components/ui";
@@ -15,11 +15,11 @@ export default async function AuditPage({
 }) {
   const { id } = await params;
   const user = await requireUser();
-  const allowed = await assertProjectAccess(user, id);
-  if (!allowed) notFound();
+  const access = await getProjectAccess(user, id);
+  if (!access) notFound();
 
-  const project = await prisma.project.findUniqueOrThrow({ where: { id } });
-  const caps = capabilitiesFor(user, project);
+  const project = access.project;
+  const caps = access.caps;
   if (!caps.seeAudit) notFound();
 
   const events = await prisma.auditEvent.findMany({
@@ -28,7 +28,7 @@ export default async function AuditPage({
     orderBy: { createdAt: "desc" },
   });
 
-  const visible = events.filter((e) => !e.item || canSeeItem(user, e.item));
+  const visible = events.filter((e) => !e.item || canSeeItem(e.item, caps));
 
   return (
     <main className="px-8 py-6">

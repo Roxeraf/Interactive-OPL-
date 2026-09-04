@@ -61,6 +61,7 @@ export type ClientProject = {
   code: string;
   name: string;
   customerName: string;
+  organizationId: string | null;
   description: string | null;
   status: string;
   site: string | null;
@@ -167,6 +168,7 @@ export function serializeProject(project: Project): ClientProject {
     code: project.code,
     name: project.name,
     customerName: project.customerName,
+    organizationId: project.organizationId,
     description: project.description,
     status: project.status,
     site: project.site,

@@ -5,8 +5,7 @@ import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import {
-  assertProjectAccess,
-  capabilitiesFor,
+  getProjectAccess,
   canSeeItem,
 } from "@/lib/permissions";
 import { formatOpNumber } from "@/lib/constants";
@@ -32,11 +31,11 @@ export async function uploadAttachment(formData: FormData) {
   });
   if (!item) return { ok: false as const, error: "Punkt nicht gefunden." };
 
-  const allowed = await assertProjectAccess(user, item.projectId);
-  if (!allowed || !canSeeItem(user, item)) {
+  const access = await getProjectAccess(user, item.projectId);
+  if (!access || !canSeeItem(item, access.caps)) {
     return { ok: false as const, error: "Kein Zugriff auf diesen Punkt." };
   }
-  const caps = capabilitiesFor(user, item.project);
+  const caps = access.caps;
   if (!caps.edit) {
     return { ok: false as const, error: "Ihre Rolle darf keine Dokumente hinterlegen." };
   }
@@ -83,11 +82,11 @@ export async function deleteAttachment(attachmentId: string) {
   });
   if (!attachment) return { ok: false as const, error: "Dokument nicht gefunden." };
 
-  const allowed = await assertProjectAccess(user, attachment.item.projectId);
-  if (!allowed || !canSeeItem(user, attachment.item)) {
+  const access = await getProjectAccess(user, attachment.item.projectId);
+  if (!access || !canSeeItem(attachment.item, access.caps)) {
     return { ok: false as const, error: "Kein Zugriff." };
   }
-  const caps = capabilitiesFor(user, attachment.item.project);
+  const caps = access.caps;
   if (!caps.edit) {
     return { ok: false as const, error: "Ihre Rolle darf keine Dokumente entfernen." };
   }
