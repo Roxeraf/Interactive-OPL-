@@ -113,7 +113,7 @@ export function OplWorkspace({ payload }: { payload: WorkspacePayload }) {
             ) : null}
             {caps.manageProject ? (
               <Link href={`/projects/${project.id}/settings`} className="btn">
-                Kundenrechte
+                Zugang
               </Link>
             ) : null}
             {caps.export ? (

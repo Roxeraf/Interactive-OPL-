@@ -63,8 +63,13 @@ export const VISIBILITY_LABEL: Record<Visibility, string> = {
 };
 
 export const ROLE_LABEL: Record<Role, string> = {
-  ADMIN: "Administration",
-  INTERNAL: "Internes Team",
+  ADMIN: "Administration (PureLoX)",
+  INTERNAL: "PureLoX",
+  CUSTOMER: "Kunde",
+};
+
+export const ORG_KIND_LABEL: Record<"PURELOX" | "CUSTOMER", string> = {
+  PURELOX: "PureLoX",
   CUSTOMER: "Kunde",
 };
 

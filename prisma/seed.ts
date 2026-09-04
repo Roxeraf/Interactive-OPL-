@@ -13,9 +13,20 @@ async function main() {
   await prisma.projectMember.deleteMany();
   await prisma.project.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.organization.deleteMany();
   await resetUploadRoot();
 
   const hash = await bcrypt.hash(PASSWORD, 10);
+
+  const purelox = await prisma.organization.create({
+    data: { name: "PureLoX SOLUTIONS", kind: "PURELOX" },
+  });
+  const nordwerkOrg = await prisma.organization.create({
+    data: { name: "Nordwerk AG", kind: "CUSTOMER" },
+  });
+  const hoelzerOrg = await prisma.organization.create({
+    data: { name: "Hölzer Logistik GmbH", kind: "CUSTOMER" },
+  });
 
   const lena = await prisma.user.create({
     data: {
@@ -24,9 +35,10 @@ async function main() {
       passwordHash: hash,
       role: "ADMIN",
       title: "Projektleiterin",
-      organization: "PLX Customer Project",
+      organization: "PureLoX SOLUTIONS",
+      organizationId: purelox.id,
       initials: "LH",
-      accent: "#0066CC",
+      accent: "#005acb",
     },
   });
 
@@ -37,9 +49,10 @@ async function main() {
       passwordHash: hash,
       role: "INTERNAL",
       title: "Inbetriebnahme / Engineering",
-      organization: "PLX Customer Project",
+      organization: "PureLoX SOLUTIONS",
+      organizationId: purelox.id,
       initials: "JW",
-      accent: "#38A169",
+      accent: "#00a9ce",
     },
   });
 
@@ -50,9 +63,24 @@ async function main() {
       passwordHash: hash,
       role: "INTERNAL",
       title: "Dokumentation & QS",
-      organization: "PLX Customer Project",
+      organization: "PureLoX SOLUTIONS",
+      organizationId: purelox.id,
       initials: "MC",
-      accent: "#2B6CB0",
+      accent: "#002f69",
+    },
+  });
+
+  const stefan = await prisma.user.create({
+    data: {
+      email: "sicht@klarpunkt.local",
+      name: "Stefan Vogt",
+      passwordHash: hash,
+      role: "INTERNAL",
+      title: "Controlling",
+      organization: "PureLoX SOLUTIONS",
+      organizationId: purelox.id,
+      initials: "SV",
+      accent: "#014dad",
     },
   });
 
@@ -64,8 +92,9 @@ async function main() {
       role: "CUSTOMER",
       title: "Projektleiterin Kunde",
       organization: "Nordwerk AG",
+      organizationId: nordwerkOrg.id,
       initials: "AR",
-      accent: "#DD6B20",
+      accent: "#cf1057",
     },
   });
 
@@ -77,8 +106,23 @@ async function main() {
       role: "CUSTOMER",
       title: "Betriebsleiter",
       organization: "Nordwerk AG",
+      organizationId: nordwerkOrg.id,
       initials: "TK",
-      accent: "#319795",
+      accent: "#289ff5",
+    },
+  });
+
+  const petra = await prisma.user.create({
+    data: {
+      email: "hoelzer@klarpunkt.local",
+      name: "Petra Hölzer",
+      passwordHash: hash,
+      role: "CUSTOMER",
+      title: "Technische Leitung",
+      organization: "Hölzer Logistik GmbH",
+      organizationId: hoelzerOrg.id,
+      initials: "PH",
+      accent: "#cf1057",
     },
   });
 
@@ -87,6 +131,7 @@ async function main() {
       code: "NW-2026-014",
       name: "Verpackungslinie VL-400",
       customerName: "Nordwerk AG",
+      organizationId: nordwerkOrg.id,
       site: "Werk Leipzig",
       description:
         "Lieferung, Montage und Inbetriebnahme der Verpackungslinie VL-400 inkl. Schnittstelle zum vorhandenen SAP-MES.",
@@ -106,6 +151,7 @@ async function main() {
       code: "HL-2025-008",
       name: "Hallenkran Retrofit HK-12",
       customerName: "Hölzer Logistik GmbH",
+      organizationId: hoelzerOrg.id,
       site: "Halle 3, Magdeburg",
       description: "Steuerungstausch und Sicherheitsnachrüstung am Hallenkran HK-12.",
       status: "AKTIV",
@@ -121,13 +167,15 @@ async function main() {
 
   await prisma.projectMember.createMany({
     data: [
-      { projectId: nordwerk.id, userId: lena.id },
-      { projectId: nordwerk.id, userId: jonas.id },
-      { projectId: nordwerk.id, userId: miriam.id },
-      { projectId: nordwerk.id, userId: anna.id },
-      { projectId: nordwerk.id, userId: thomas.id },
-      { projectId: hoelzer.id, userId: lena.id },
-      { projectId: hoelzer.id, userId: jonas.id },
+      { projectId: nordwerk.id, userId: lena.id, role: "PLX_LEAD" },
+      { projectId: nordwerk.id, userId: jonas.id, role: "PLX_MEMBER" },
+      { projectId: nordwerk.id, userId: miriam.id, role: "PLX_MEMBER" },
+      { projectId: nordwerk.id, userId: stefan.id, role: "PLX_VIEWER" },
+      { projectId: nordwerk.id, userId: anna.id, role: "CUSTOMER_COMMENTER" },
+      { projectId: nordwerk.id, userId: thomas.id, role: "CUSTOMER_VIEWER" },
+      { projectId: hoelzer.id, userId: lena.id, role: "PLX_LEAD" },
+      { projectId: hoelzer.id, userId: jonas.id, role: "PLX_MEMBER" },
+      { projectId: hoelzer.id, userId: petra.id, role: "CUSTOMER_EDITOR" },
     ],
   });
 
@@ -708,9 +756,10 @@ async function main() {
   });
 
   console.log("Klarpunkt Seed fertig.");
-  console.log("  admin@klarpunkt.local / Klarpunkt2026  (Lena Hofmann, Admin)");
-  console.log("  intern@klarpunkt.local / Klarpunkt2026  (Jonas Weber, Intern)");
-  console.log("  kunde@klarpunkt.local / Klarpunkt2026  (Dr. Anna Richter, Kunde)");
+  console.log("  admin@klarpunkt.local / Klarpunkt2026  (Lena Hofmann, Admin, beide Projekte)");
+  console.log("  intern@klarpunkt.local / Klarpunkt2026  (Jonas Weber, PureLoX Team, beide Projekte)");
+  console.log("  kunde@klarpunkt.local / Klarpunkt2026  (Dr. Anna Richter, Nordwerk, nur kommentieren)");
+  console.log("  sicht@klarpunkt.local / Klarpunkt2026  (Stefan Vogt, PureLoX Einsicht, nur Nordwerk)");
 }
 
 main()

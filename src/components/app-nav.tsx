@@ -3,14 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { FolderKanban, LayoutDashboard, Users } from "lucide-react";
+import { FolderKanban, LayoutDashboard, Building2, Users } from "lucide-react";
 
 export function AppNav({ isAdmin, onNavigate }: { isAdmin: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   const items = [
     { href: "/dashboard", label: "Lage", icon: LayoutDashboard },
     { href: "/projects", label: "Projekte", icon: FolderKanban },
-    ...(isAdmin ? [{ href: "/admin/users", label: "Personen", icon: Users }] : []),
+    ...(isAdmin
+      ? [
+          { href: "/admin/users", label: "Personen", icon: Users },
+          { href: "/admin/customers", label: "Kunden", icon: Building2 },
+        ]
+      : []),
   ];
 
   function active(href: string) {
@@ -36,7 +41,7 @@ export function AppNav({ isAdmin, onNavigate }: { isAdmin: boolean; onNavigate?:
               isActive ? "bg-active font-medium text-navy" : "text-ink hover:bg-active/70",
             )}
           >
-            {isActive ? <span className="absolute inset-y-1 left-0 w-[3px] rounded-r bg-navy" /> : null}
+            {isActive ? <span className="absolute inset-y-1 left-0 w-[3px] rounded-r bg-ruby" /> : null}
             <Icon className={clsx("h-4 w-4", isActive ? "text-brand" : "text-muted")} strokeWidth={1.75} />
             {item.label}
           </Link>

@@ -38,7 +38,7 @@ export function Avatar({
 
 const STATUS_STYLE: Record<Status, string> = {
   OFFEN: "bg-[#edf2f7] text-[#4a5568]",
-  IN_ARBEIT: "bg-[#e6f1fb] text-[#0066cc]",
+  IN_ARBEIT: "bg-[#e6f1fb] text-[#005acb]",
   WARTE_KUNDE: "bg-[#fef3c7] text-[#92400e]",
   WARTE_INTERN: "bg-[#eef2ff] text-[#3730a3]",
   GELOEST: "bg-[#e6f6ed] text-[#276749]",
@@ -72,6 +72,27 @@ export function PriorityMark({ priority }: { priority: string }) {
     <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
       <span className={clsx("h-2 w-2 rounded-full", PRIORITY_STYLE[p] ?? "bg-muted")} />
       {PRIORITY_LABEL[p] ?? priority}
+    </span>
+  );
+}
+
+export function RoleBadge({
+  label,
+  tone = "navy",
+}: {
+  label: string;
+  tone?: "navy" | "ruby" | "muted";
+}) {
+  return (
+    <span
+      className={clsx(
+        "inline-flex items-center rounded-sm px-2 py-0.5 text-[11px] font-semibold",
+        tone === "ruby" && "bg-ruby/10 text-ruby",
+        tone === "navy" && "bg-active text-navy",
+        tone === "muted" && "bg-canvas text-muted",
+      )}
+    >
+      {label}
     </span>
   );
 }

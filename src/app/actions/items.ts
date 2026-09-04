@@ -5,9 +5,8 @@ import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { logAudit, stringifyValue } from "@/lib/audit";
 import {
-  assertProjectAccess,
-  capabilitiesFor,
   canSeeItem,
+  getProjectAccess,
   isInternal,
 } from "@/lib/permissions";
 import { FIELD_LABEL, formatOpNumber, labelOf } from "@/lib/constants";
@@ -37,10 +36,9 @@ function revalidateProject(projectId: string) {
 
 async function loadProject(projectId: string) {
   const user = await requireUser();
-  const allowed = await assertProjectAccess(user, projectId);
-  if (!allowed) throw new Error("Kein Zugriff auf dieses Projekt.");
-  const project = await prisma.project.findUniqueOrThrow({ where: { id: projectId } });
-  return { user, project, caps: capabilitiesFor(user, project) };
+  const access = await getProjectAccess(user, projectId);
+  if (!access) throw new Error("Kein Zugriff auf dieses Projekt.");
+  return { user, project: access.project, caps: access.caps };
 }
 
 export async function createItem(projectId: string, input: Record<string, string>) {
@@ -95,13 +93,12 @@ export async function updateItem(
   const user = await requireUser();
   const existing = await prisma.openItem.findUniqueOrThrow({
     where: { id: itemId },
-    include: { project: true },
   });
-  const allowed = await assertProjectAccess(user, existing.projectId);
-  if (!allowed || !canSeeItem(user, existing)) {
+  const access = await getProjectAccess(user, existing.projectId);
+  if (!access || !canSeeItem(existing, access.caps)) {
     throw new Error("Kein Zugriff auf diesen Punkt.");
   }
-  const caps = capabilitiesFor(user, existing.project);
+  const caps = access.caps;
 
   const data: Record<string, unknown> = {};
   const changes: { field: string; oldValue: string | null; newValue: string | null }[] = [];
@@ -172,9 +169,9 @@ export async function addComment(
     where: { id: itemId },
     include: { project: true },
   });
-  const allowed = await assertProjectAccess(user, item.projectId);
-  if (!allowed || !canSeeItem(user, item)) throw new Error("Kein Zugriff.");
-  const caps = capabilitiesFor(user, item.project);
+  const access = await getProjectAccess(user, item.projectId);
+  if (!access || !canSeeItem(item, access.caps)) throw new Error("Kein Zugriff.");
+  const caps = access.caps;
   if (!caps.comment) throw new Error("Kommentare sind für Ihre Rolle deaktiviert.");
   const internal = isInternal && caps.internalComment;
   const text = body.trim();
