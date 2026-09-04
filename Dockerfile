@@ -56,6 +56,9 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/package-lock.json ./package-lock.json
 COPY --from=builder /app/next.config.ts ./next.config.ts
+# First-boot `prisma db seed` imports ../src/lib/files. The Next.js output does
+# not include those sources, so copy the helpers the demo seed needs.
+COPY --from=builder /app/src/lib/files.ts /app/src/lib/file-meta.ts ./src/lib/
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

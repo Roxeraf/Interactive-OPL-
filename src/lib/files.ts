@@ -46,7 +46,7 @@ export async function saveUploadBuffer(originalName: string, buffer: Buffer, rep
   const ext = extensionOf(filename);
   const storedName = `${randomUUID()}${ext ? `.${ext}` : ""}`;
   const root = await ensureUploadRoot();
-  await writeFile(path.join(root, storedName), buffer);
+  await writeFile(path.join(/*turbopackIgnore: true*/ root, storedName), buffer);
   return {
     filename,
     storedName,
@@ -60,11 +60,11 @@ export function storedFilePath(storedName: string) {
   if (safe !== storedName || storedName.includes("..")) {
     throw new Error("Ungültiger Dateiname.");
   }
-  return path.join(uploadRoot(), safe);
+  return path.join(/*turbopackIgnore: true*/ uploadRoot(), safe);
 }
 
 export async function readStoredFile(storedName: string) {
-  return readFile(storedFilePath(storedName));
+  return readFile(/*turbopackIgnore: true*/ storedFilePath(storedName));
 }
 
 export async function deleteStoredFile(storedName: string) {
