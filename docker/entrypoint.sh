@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-mkdir -p /data
+mkdir -p /data /data/uploads
 
 if [ ! -d node_modules/next ] || [ ! -d node_modules/@prisma/client ]; then
   echo "Klarpunkt: npm-Abhängigkeiten im Container installieren …"

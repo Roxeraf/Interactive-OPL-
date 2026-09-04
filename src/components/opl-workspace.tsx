@@ -28,8 +28,9 @@ import { formatDate, formatDateTime, isOverdue } from "@/lib/dates";
 import type { ClientItem, Person, WorkspacePayload } from "@/lib/serialize";
 import { addComment, createItem, updateItem } from "@/app/actions/items";
 import { exportProjectXlsx, importProjectXlsx } from "@/app/actions/excel";
-import { Filter, Plus, RefreshCw, Search } from "lucide-react";
+import { Filter, Paperclip, Plus, RefreshCw, Search } from "lucide-react";
 import { Avatar, PriorityMark, StatusBadge } from "./ui";
+import { ItemDocuments } from "./item-documents";
 
 export function OplWorkspace({ payload }: { payload: WorkspacePayload }) {
   const { project, items, members, caps, user } = payload;
@@ -214,7 +215,7 @@ export function OplWorkspace({ payload }: { payload: WorkspacePayload }) {
 
       {selected ? (
         <ItemDrawer
-          key={`${selected.id}-${selected.updatedAt}-${selected.comments.length}`}
+          key={`${selected.id}-${selected.updatedAt}-${selected.comments.length}-${selected.attachments.length}`}
           item={selected}
           members={members}
           caps={caps}
@@ -377,8 +378,16 @@ function BoardCard({
           <Avatar person={item.ownerInternal} size="sm" />
           <Avatar person={item.ownerCustomer} size="sm" />
         </div>
-        <span className={clsx("text-[11px]", overdue ? "font-semibold text-danger" : "text-muted")}>
-          {formatDate(item.dueDate)}
+        <span className="flex items-center gap-2">
+          {item.attachments.length > 0 ? (
+            <span className="inline-flex items-center gap-0.5 text-[11px] text-muted" title="Dokumente">
+              <Paperclip className="h-3 w-3" />
+              {item.attachments.length}
+            </span>
+          ) : null}
+          <span className={clsx("text-[11px]", overdue ? "font-semibold text-danger" : "text-muted")}>
+            {formatDate(item.dueDate)}
+          </span>
         </span>
       </div>
     </button>
@@ -414,7 +423,15 @@ function ListView({ items, onSelect }: { items: ClientItem[]; onSelect: (id: str
               >
                 <td className="px-4 py-3 font-mono text-xs font-medium text-brand">{formatOpNumber(item.number)}</td>
                 <td className="px-4 py-3">
-                  <p className="font-medium">{item.title}</p>
+                  <p className="font-medium">
+                    {item.title}
+                    {item.attachments.length > 0 ? (
+                      <span className="ml-2 inline-flex items-center gap-0.5 align-middle text-[11px] font-normal text-muted">
+                        <Paperclip className="h-3 w-3" />
+                        {item.attachments.length}
+                      </span>
+                    ) : null}
+                  </p>
                   {item.visibility === "INTERNAL" ? (
                     <p className="text-[11px] uppercase tracking-wider text-muted">Nur intern</p>
                   ) : null}
@@ -663,6 +680,7 @@ function ItemDrawer({
         <div className="space-y-4 px-6 py-4">
           <Field label="Beschreibung" value={draft.description} disabled={!canEdit} onChange={(v) => set("description", v)} />
           <Field label="Maßnahme" value={draft.measure} disabled={!canEdit} onChange={(v) => set("measure", v)} />
+          <ItemDocuments item={item} canUpload={canEdit} onChanged={onSaved} />
           <Field
             label="Abschluss / Begründung"
             value={draft.resolution}

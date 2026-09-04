@@ -25,11 +25,12 @@ FROM base AS development
 ENV NODE_ENV=development \
     HOSTNAME=0.0.0.0 \
     PORT=3000 \
-    DATABASE_URL="file:/data/klarpunkt.db"
+    DATABASE_URL="file:/data/klarpunkt.db" \
+    UPLOAD_DIR="/data/uploads"
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh && mkdir -p /data
+RUN chmod +x /entrypoint.sh && mkdir -p /data /data/uploads
 EXPOSE 3000
 VOLUME ["/data"]
 ENTRYPOINT ["/entrypoint.sh"]
@@ -43,9 +44,10 @@ FROM base AS runner
 ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0 \
     PORT=3000 \
-    DATABASE_URL="file:/data/klarpunkt.db"
+    DATABASE_URL="file:/data/klarpunkt.db" \
+    UPLOAD_DIR="/data/uploads"
 
-RUN mkdir -p /data
+RUN mkdir -p /data /data/uploads
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next

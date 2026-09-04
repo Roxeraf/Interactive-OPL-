@@ -1,6 +1,7 @@
-import type { Comment, OpenItem, Project, User } from "@prisma/client";
+import type { Attachment, Comment, OpenItem, Project, User } from "@prisma/client";
 import type { SessionUser } from "./auth";
 import type { Capabilities } from "./permissions";
+import { previewKind, type PreviewKind } from "./file-meta";
 
 export type Person = {
   id: string;
@@ -19,6 +20,16 @@ export type ClientComment = {
   isInternal: boolean;
   createdAt: string;
   user: Person;
+};
+
+export type ClientAttachment = {
+  id: string;
+  filename: string;
+  mimeType: string;
+  size: number;
+  createdAt: string;
+  preview: PreviewKind;
+  uploadedBy: Person;
 };
 
 export type ClientItem = {
@@ -42,6 +53,7 @@ export type ClientItem = {
   createdBy: Person;
   updatedAt: string;
   comments: ClientComment[];
+  attachments: ClientAttachment[];
 };
 
 export type ClientProject = {
@@ -94,6 +106,7 @@ export function serializeItem(
     ownerCustomer: User | null;
     createdBy: User;
     comments: (Comment & { user: User })[];
+    attachments: (Attachment & { uploadedBy: User })[];
   },
   caps: Capabilities,
 ): ClientItem {
@@ -106,6 +119,16 @@ export function serializeItem(
       createdAt: c.createdAt.toISOString(),
       user: toPerson(c.user),
     }));
+
+  const attachments = item.attachments.map((file) => ({
+    id: file.id,
+    filename: file.filename,
+    mimeType: file.mimeType,
+    size: file.size,
+    createdAt: file.createdAt.toISOString(),
+    preview: previewKind(file.mimeType, file.filename),
+    uploadedBy: toPerson(file.uploadedBy),
+  }));
 
   return {
     id: item.id,
@@ -134,6 +157,7 @@ export function serializeItem(
     createdBy: toPerson(item.createdBy),
     updatedAt: item.updatedAt.toISOString(),
     comments,
+    attachments,
   };
 }
 
