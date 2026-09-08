@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Bell, Clock3, LogOut, Menu, Search, Star, X } from "lucide-react";
+import { Bell, LogOut, Menu, X } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 import type { SessionUser } from "@/lib/auth";
 import { AppNav } from "./app-nav";
@@ -30,18 +30,6 @@ export function AppShell({
           >
             {sidebarOpen ? <X className="h-5 w-5" strokeWidth={1.6} /> : <Menu className="h-5 w-5" strokeWidth={1.6} />}
           </button>
-          <span className="hidden h-9 w-9 items-center justify-center rounded-sm text-white/90 lg:inline-flex" title="Menü">
-            <Menu className="h-5 w-5" strokeWidth={1.6} />
-          </span>
-          <HeaderIcon label="Verlauf" className="hidden sm:inline-flex">
-            <Clock3 className="h-5 w-5" strokeWidth={1.6} />
-          </HeaderIcon>
-          <HeaderIcon label="Favoriten" className="hidden sm:inline-flex">
-            <Star className="h-5 w-5" strokeWidth={1.6} />
-          </HeaderIcon>
-          <HeaderIcon label="Suche">
-            <Search className="h-5 w-5" strokeWidth={1.6} />
-          </HeaderIcon>
         </div>
 
         <Link href="/dashboard" className="flex items-center justify-center" aria-label="PureLoX Klarpunkt">
@@ -112,19 +100,11 @@ export function AppShell({
   );
 }
 
-function HeaderIcon({
-  label,
-  children,
-  className = "",
-}: {
-  label: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
+function HeaderIcon({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <span
       title={label}
-      className={`inline-flex h-9 w-9 items-center justify-center rounded-sm text-white/90 hover:bg-white/10 ${className}`}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-sm text-white/90 hover:bg-white/10"
     >
       {children}
     </span>
